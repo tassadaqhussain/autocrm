@@ -71,7 +71,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/departments/quick-add', [\App\Http\Controllers\HR\DepartmentController::class, 'quickStore'])->name('departments.quick-store');
         Route::post('/designations/quick-add', [\App\Http\Controllers\HR\DepartmentController::class, 'quickStoreDesignation'])->name('designations.quick-store');
         
-        Route::get('/leave', [\App\Http\Controllers\HR\LeaveController::class, 'index'])->name('leave.index');
+        Route::resource('leave', \App\Http\Controllers\HR\LeaveController::class);
+        Route::patch('/leave/{leave}/approve', [\App\Http\Controllers\HR\LeaveController::class, 'approve'])->name('leave.approve');
+        Route::patch('/leave/{leave}/reject', [\App\Http\Controllers\HR\LeaveController::class, 'reject'])->name('leave.reject');
+        
         Route::get('/payroll', [\App\Http\Controllers\HR\PayrollController::class, 'index'])->name('payroll.index');
         Route::get('/performance', [\App\Http\Controllers\HR\PerformanceController::class, 'index'])->name('performance.index');
     });

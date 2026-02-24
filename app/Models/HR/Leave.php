@@ -8,7 +8,7 @@ use App\Models\User;
 class Leave extends Model
 {
     protected $table = 'hr_leaves';
-    protected $fillable = ['employee_id', 'leave_type_id', 'start_date', 'end_date', 'reason', 'status', 'approved_by'];
+    protected $fillable = ['employee_id', 'leave_type_id', 'start_date', 'end_date', 'reason', 'status', 'approved_by', 'duration_type', 'attachment'];
 
     public function employee()
     {
