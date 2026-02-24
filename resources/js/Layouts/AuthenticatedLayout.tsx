@@ -87,15 +87,12 @@ export default function Authenticated({
             name: 'Settings',
             href: route('settings.index'),
             icon: Settings,
-            active: route().current('settings.*') || route().current('hr.clinic.*') || route().current('hr.departments.*') || route().current('hr.designations.*') || route().current('hr.shifts.*'),
+            active: route().current('settings.*') || route().current('hr.clinic.*'),
             permission: 'manage_clinic',
             children: [
                 { name: 'System Settings', href: route('settings.index'), icon: LayoutGrid, permission: '*', active: route().current('settings.index') },
                 { name: 'Role Management', href: route('settings.roles.index'), icon: Shield, permission: '*', active: route().current('settings.roles.*') },
                 { name: 'Clinic Profile', href: route('hr.clinic.profile'), icon: Building2, permission: 'manage_clinic', active: route().current('hr.clinic.*') },
-                { name: 'Departments', href: route('hr.departments.index'), icon: Command, permission: 'manage_clinic', active: route().current('hr.departments.*') },
-                { name: 'Designations', href: route('hr.designations.index'), icon: Award, permission: 'manage_clinic', active: route().current('hr.designations.*') },
-                { name: 'Operational Shifts', href: route('hr.shifts.index'), icon: Clock, permission: 'manage_clinic', active: route().current('hr.shifts.*') },
             ]
         },
         {
@@ -136,15 +133,21 @@ export default function Authenticated({
             ]
         },
         {
-            name: 'HR Management',
+            name: 'HR',
             href: route('hr.dashboard'),
-            icon: Briefcase,
-            active: route().current('hr.*') && !route().current('hr.attendance.index') && !route().current('hr.departments.*'),
+            icon: Users,
+            active: route().current('hr.*') && !route().current('hr.clinic.*'),
             permission: 'manage_hr',
             children: [
-                { name: 'System Dashboard', href: route('hr.dashboard'), icon: LayoutGrid, permission: 'manage_hr', active: route().current('hr.dashboard') },
-                { name: 'Employee Directory', href: route('hr.employees.index'), icon: User, permission: 'manage_hr', active: route().current('hr.employees.*') },
-                { name: 'Leave Tracking', href: route('hr.leave.index'), icon: Calendar, permission: 'manage_hr', active: route().current('hr.leave.*') },
+                { name: 'Dashboard', href: route('hr.dashboard'), icon: LayoutGrid, permission: 'manage_hr', active: route().current('hr.dashboard') },
+                { name: 'Employees', href: route('hr.employees.index'), icon: User, permission: 'manage_hr', active: route().current('hr.employees.*') },
+                { name: 'Leaves', href: route('hr.leave.index'), icon: Calendar, permission: 'manage_hr', active: route().current('hr.leave.*') },
+                { name: 'Shift Roster', href: route('hr.shifts.index'), icon: Clock, permission: 'manage_hr', active: route().current('hr.shifts.*') },
+                { name: 'Attendance', href: route('hr.attendance.index'), icon: Clock, permission: 'mark_attendance', active: route().current('hr.attendance.*') },
+                { name: 'Holiday', href: '#', icon: Calendar, permission: 'manage_hr', active: false },
+                { name: 'Designation', href: route('hr.designations.index'), icon: Award, permission: 'manage_hr', active: route().current('hr.designations.*') },
+                { name: 'Department', href: route('hr.departments.index'), icon: Building2, permission: 'manage_hr', active: route().current('hr.departments.*') },
+                { name: 'Appreciation', href: '#', icon: Award, permission: 'manage_hr', active: false },
                 { name: 'Performance', href: route('hr.performance.index'), icon: BarChart3, permission: 'manage_hr', active: route().current('hr.performance.*') },
             ]
         },
@@ -164,13 +167,7 @@ export default function Authenticated({
                 { name: 'Bank Account', href: '#', icon: Landmark, permission: 'manage_finance', active: false },
             ]
         },
-        {
-            name: 'Work Terminal',
-            href: route('hr.attendance.index'),
-            icon: Clock,
-            active: route().current('hr.attendance.index') && (user.role !== 'Admin' || route().current('hr.attendance.index')),
-            permission: 'mark_attendance'
-        },
+
     ].filter(item => !item.permission || can(item.permission));
 
     // Secondary sidebar filter for children
