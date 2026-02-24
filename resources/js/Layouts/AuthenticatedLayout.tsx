@@ -38,6 +38,7 @@ import {
     Folder,
     Handshake,
     Contact,
+    Shield,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -70,14 +71,29 @@ export default function Authenticated({
             active: route().current('dashboard')
         },
         {
-            name: 'Clinic',
-            href: route('hr.departments.index'),
+            name: 'Clinic Operations',
+            href: '#',
             icon: Building2,
-            active: route().current('hr.departments.*') || route().current('hr.designations.*') || route().current('hr.clinic.*'),
+            active: false,
+            permission: 'view_patients', // Dummy permission for now
+            children: [
+                { name: 'Patient Records', href: '#', icon: Users, permission: 'view_patients', active: false },
+                { name: 'Doctor Schedules', href: '#', icon: Calendar, permission: 'view_appointments', active: false },
+                { name: 'Prescriptions', href: '#', icon: FileText, permission: 'view_patients', active: false },
+                { name: 'Procedure Notes', href: '#', icon: Command, permission: 'view_patients', active: false },
+            ]
+        },
+        {
+            name: 'Settings',
+            href: route('settings.index'),
+            icon: Settings,
+            active: route().current('settings.*') || route().current('hr.clinic.*') || route().current('hr.departments.*') || route().current('hr.designations.*'),
             permission: 'manage_clinic',
             children: [
-                { name: 'Clinic Profile', href: route('hr.clinic.profile'), icon: Command, permission: 'manage_clinic', active: route().current('hr.clinic.*') },
-                { name: 'Departments', href: route('hr.departments.index'), icon: Building2, permission: 'manage_clinic', active: route().current('hr.departments.*') },
+                { name: 'System Settings', href: route('settings.index'), icon: LayoutGrid, permission: '*', active: route().current('settings.index') },
+                { name: 'Role Management', href: route('settings.roles.index'), icon: Shield, permission: '*', active: route().current('settings.roles.*') },
+                { name: 'Clinic Profile', href: route('hr.clinic.profile'), icon: Building2, permission: 'manage_clinic', active: route().current('hr.clinic.*') },
+                { name: 'Departments', href: route('hr.departments.index'), icon: Command, permission: 'manage_clinic', active: route().current('hr.departments.*') },
                 { name: 'Designations', href: route('hr.designations.index'), icon: Award, permission: 'manage_clinic', active: route().current('hr.designations.*') },
                 { name: 'Operational Shifts', href: '#', icon: Clock, permission: 'manage_clinic', active: false },
             ]
@@ -209,12 +225,7 @@ export default function Authenticated({
 
                 {/* Bottom Icons */}
                 <div className="mt-auto flex flex-col gap-5 pb-2">
-                    {user.role === 'Admin' && (
-                        <Link href={route('settings.index')} className="p-3 text-slate-300 hover:text-slate-600 hover:bg-slate-50 rounded-xl transition-all group relative">
-                            <Settings className="w-5 h-5 group-hover:rotate-45 transition-transform duration-500" />
-                            <div className="absolute left-[calc(100%+12px)] px-3 py-1.5 bg-slate-900 text-white text-[9px] font-black uppercase tracking-widest rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-all translate-x-[-10px] group-hover:translate-x-0 whitespace-nowrap z-[100] shadow-xl">Settings</div>
-                        </Link>
-                    )}
+                    {/* Settings now managed as a top-level module */}
                     <Link href={route('logout')} method="post" as="button" className="p-3 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all group relative">
                         <LogOut className="w-5 h-5" />
                         <div className="absolute left-[calc(100%+12px)] px-3 py-1.5 bg-rose-600 text-white text-[9px] font-black uppercase tracking-widest rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-all translate-x-[-10px] group-hover:translate-x-0 whitespace-nowrap z-[100] shadow-xl">Logout</div>

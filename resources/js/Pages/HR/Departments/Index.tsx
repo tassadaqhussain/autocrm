@@ -1,5 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, router } from '@inertiajs/react';
 import { Building2, Plus, Users, Shield, Briefcase, Network } from 'lucide-react';
 import { useState } from 'react';
 import Modal from '@/Components/Modal';
@@ -10,19 +10,38 @@ interface Props {
 
 export default function Index({ departments }: Props) {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [editingId, setEditingId] = useState<number | null>(null);
 
-    const { data, setData, post, processing, reset, errors, clearErrors } = useForm({
+    const { data, setData, post, patch, processing, reset, errors, clearErrors } = useForm({
         name: ''
     });
 
-    const handleCreate = (e: React.FormEvent) => {
+    const handleCreateOrUpdate = (e: React.FormEvent) => {
         e.preventDefault();
-        post(route('hr.departments.store'), {
-            onSuccess: () => {
-                setIsCreateModalOpen(false);
-                reset();
-            }
-        });
+        if (editingId) {
+            patch(route('hr.departments.update', editingId), {
+                onSuccess: () => {
+                    setIsCreateModalOpen(false);
+                    setEditingId(null);
+                    reset();
+                }
+            });
+        } else {
+            post(route('hr.departments.store'), {
+                onSuccess: () => {
+                    setIsCreateModalOpen(false);
+                    reset();
+                }
+            });
+        }
+    };
+
+    const handleDelete = (id: number) => {
+        if (confirm('Are you sure you want to delete this department?')) {
+            router.delete(route('hr.departments.destroy', id), {
+                preserveScroll: true
+            });
+        }
     };
 
     return (
@@ -41,7 +60,12 @@ export default function Index({ departments }: Props) {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {/* Add Department Card */}
                     <button
-                        onClick={() => setIsCreateModalOpen(true)}
+                        onClick={() => {
+                            setEditingId(null);
+                            setData({ name: '' });
+                            clearErrors();
+                            setIsCreateModalOpen(true);
+                        }}
                         className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-slate-300 rounded-2xl bg-slate-50 hover:bg-slate-100 hover:border-indigo-400 transition-all text-slate-500 hover:text-indigo-600 group h-full min-h-[250px]"
                     >
                         <div className="w-14 h-14 rounded-xl bg-white shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
@@ -73,11 +97,22 @@ export default function Index({ departments }: Props) {
                             </div>
 
                             <div className="w-full mt-auto pt-4 border-t border-slate-100 grid grid-cols-2 gap-2">
-                                <button className="p-2 text-[10px] font-black uppercase tracking-widest text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors">
+                                <button
+                                    onClick={() => {
+                                        setEditingId(dept.id);
+                                        setData({ name: dept.name });
+                                        clearErrors();
+                                        setIsCreateModalOpen(true);
+                                    }}
+                                    className="p-2 text-[10px] font-black uppercase tracking-widest text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors"
+                                >
                                     Edit
                                 </button>
-                                <button className="p-2 text-[10px] font-black uppercase tracking-widest text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors">
-                                    View Details
+                                <button
+                                    onClick={() => handleDelete(dept.id)}
+                                    className="p-2 text-[10px] font-black uppercase tracking-widest text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg transition-colors"
+                                >
+                                    Delete
                                 </button>
                             </div>
                         </div>
@@ -85,10 +120,10 @@ export default function Index({ departments }: Props) {
                 </div>
             </div>
 
-            {/* Create Modal */}
-            <Modal show={isCreateModalOpen} onClose={() => { setIsCreateModalOpen(false); reset(); }} maxWidth="md">
-                <form onSubmit={handleCreate} className="p-6">
-                    <h2 className="text-lg font-black text-slate-900 uppercase tracking-tight mb-6">Create New Department</h2>
+            {/* Create/Edit Modal */}
+            <Modal show={isCreateModalOpen} onClose={() => { setIsCreateModalOpen(false); setEditingId(null); reset(); clearErrors(); }} maxWidth="md">
+                <form onSubmit={handleCreateOrUpdate} className="p-6">
+                    <h2 className="text-lg font-black text-slate-900 uppercase tracking-tight mb-6">{editingId ? 'Edit Department' : 'Create New Department'}</h2>
 
                     <div className="space-y-4">
                         <div>
@@ -107,7 +142,7 @@ export default function Index({ departments }: Props) {
                     <div className="mt-8 flex justify-end gap-3">
                         <button
                             type="button"
-                            onClick={() => { setIsCreateModalOpen(false); reset(); clearErrors(); }}
+                            onClick={() => { setIsCreateModalOpen(false); setEditingId(null); reset(); clearErrors(); }}
                             className="h-10 px-5 text-[11px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-700 transition-colors"
                         >
                             Cancel
@@ -117,7 +152,7 @@ export default function Index({ departments }: Props) {
                             disabled={processing}
                             className="h-10 px-6 bg-slate-900 text-white rounded-lg text-[11px] font-black uppercase tracking-widest hover:bg-slate-800 transition-colors flex items-center gap-2 disabled:opacity-50"
                         >
-                            {processing ? 'Creating...' : 'Create Department'}
+                            {processing ? 'Saving...' : (editingId ? 'Save Changes' : 'Create Department')}
                         </button>
                     </div>
                 </form>
