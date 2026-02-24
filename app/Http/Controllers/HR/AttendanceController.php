@@ -74,8 +74,7 @@ class AttendanceController extends Controller
             'working_from' => 'required|string',
         ]);
 
-        // Combine date + time strings into full datetime
-        $date = $validated['date'];
+        $date     = $validated['date'];
         $checkIn  = Carbon::parse("$date {$validated['check_in']}");
         $checkOut = $validated['check_out'] ? Carbon::parse("$date {$validated['check_out']}") : null;
 
@@ -84,10 +83,7 @@ class AttendanceController extends Controller
         if ($validated['is_late'] ?? false)     $status = 'Late';
 
         AttendanceLog::updateOrCreate(
-            [
-                'employee_id' => $validated['employee_id'],
-                'date'        => $date,
-            ],
+            ['employee_id' => $validated['employee_id'], 'date' => $date],
             [
                 'check_in'     => $checkIn,
                 'check_out'    => $checkOut,
@@ -108,13 +104,11 @@ class AttendanceController extends Controller
     {
         $employee = auth()->user()->employee;
         if (!$employee) return back()->with('error', 'Employee record not found.');
-
         $today = Carbon::today()->toDateString();
         AttendanceLog::updateOrCreate(
             ['employee_id' => $employee->id, 'date' => $today],
-            ['check_in' => Carbon::now(), 'clock_in_ip' => request()->ip(), 'status' => 'Present', 'working_from' => 'Office']
+            ['check_in' => Carbon::now(), 'clock_in_ip' => $request->ip(), 'status' => 'Present', 'working_from' => 'Office']
         );
-
         return back();
     }
 
@@ -122,13 +116,11 @@ class AttendanceController extends Controller
     {
         $employee = auth()->user()->employee;
         if (!$employee) return back()->with('error', 'Employee record not found.');
-
         $today = Carbon::today()->toDateString();
         AttendanceLog::where('employee_id', $employee->id)->where('date', $today)->update([
             'check_out'    => Carbon::now(),
-            'clock_out_ip' => request()->ip(),
+            'clock_out_ip' => $request->ip(),
         ]);
-
         return back();
     }
 }

@@ -17,13 +17,12 @@ interface Props {
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const DAY_NAMES = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 
-// Status config
-const STATUS_CONFIG: Record<string, { label: string; icon: any; cell: string; dot: string }> = {
-    Present: { label: 'Present', icon: Check, cell: 'text-emerald-600', dot: 'bg-emerald-500' },
-    Late: { label: 'Late', icon: Clock, cell: 'text-amber-500', dot: 'bg-amber-400' },
-    'Half Day': { label: 'Half Day', icon: Minus, cell: 'text-blue-500', dot: 'bg-blue-400' },
-    Absent: { label: 'Absent', icon: X, cell: 'text-red-500', dot: 'bg-red-500' },
-    'On Leave': { label: 'On Leave', icon: Plane, cell: 'text-purple-500', dot: 'bg-purple-400' },
+const STATUS_CONFIG: Record<string, { label: string; icon: any; cell: string }> = {
+    Present: { label: 'Present', icon: Check, cell: 'text-emerald-600' },
+    Late: { label: 'Late', icon: Clock, cell: 'text-amber-500' },
+    'Half Day': { label: 'Half Day', icon: Minus, cell: 'text-blue-500' },
+    Absent: { label: 'Absent', icon: X, cell: 'text-red-500' },
+    'On Leave': { label: 'On Leave', icon: Plane, cell: 'text-purple-500' },
 };
 
 export default function Index({ employees, logs, holidays, daysInMonth, month, year, stats }: Props) {
@@ -43,7 +42,6 @@ export default function Index({ employees, logs, holidays, daysInMonth, month, y
         working_from: 'Office',
     });
 
-    // Build the days array for current month
     const days = useMemo(() => {
         return Array.from({ length: daysInMonth }, (_, i) => {
             const d = new Date(year, month - 1, i + 1);
@@ -58,17 +56,16 @@ export default function Index({ employees, logs, holidays, daysInMonth, month, y
 
     const getLog = (empId: number, date: string) => {
         const key = `${empId}_${date}`;
-        return logs[key]?.[0] ?? null;
+        return (logs as any)[key]?.[0] ?? null;
     };
 
     const isHoliday = (date: string) => holidays.includes(date);
 
     const navigateMonth = (dir: number) => {
-        let newMonth = month + dir;
-        let newYear = year;
-        if (newMonth < 1) { newMonth = 12; newYear--; }
-        if (newMonth > 12) { newMonth = 1; newYear++; }
-        router.get(route('hr.attendance.index'), { month: newMonth, year: newYear }, { preserveState: true });
+        let m = month + dir, y = year;
+        if (m < 1) { m = 12; y--; }
+        if (m > 12) { m = 1; y++; }
+        router.get(route('hr.attendance.index'), { month: m, year: y }, { preserveState: true });
     };
 
     const openMark = (empId?: number, date?: string) => {
@@ -96,31 +93,23 @@ export default function Index({ employees, logs, holidays, daysInMonth, month, y
                 </button>
             );
         }
-
         if (day.isWeekend && !log) {
             return <span className="text-slate-300 text-xs">-</span>;
         }
-
         if (!log) {
             return (
-                <button
-                    onClick={() => openMark(empId, day.date)}
-                    title="Mark Attendance"
-                    className="w-full h-full flex items-center justify-center text-slate-300 hover:text-red-500 transition-colors"
-                >
+                <button onClick={() => openMark(empId, day.date)} title="Mark Attendance"
+                    className="w-full h-full flex items-center justify-center text-slate-300 hover:text-red-500 transition-colors">
                     <X className="w-3.5 h-3.5" />
                 </button>
             );
         }
-
         const cfg = STATUS_CONFIG[log.status] ?? STATUS_CONFIG.Present;
         const Icon = cfg.icon;
         return (
-            <button
-                onClick={() => openMark(empId, day.date)}
-                title={`${log.status} — In: ${log.check_in ? log.check_in.substring(11, 16) : '--'}`}
-                className={`w-full h-full flex items-center justify-center ${cfg.cell} hover:opacity-70 transition-opacity`}
-            >
+            <button onClick={() => openMark(empId, day.date)}
+                title={`${log.status} — In: ${log.check_in ? String(log.check_in).substring(11, 16) : '--'}`}
+                className={`w-full h-full flex items-center justify-center ${cfg.cell} hover:opacity-70 transition-opacity`}>
                 <Icon className="w-3.5 h-3.5" />
             </button>
         );
@@ -131,7 +120,7 @@ export default function Index({ employees, logs, holidays, daysInMonth, month, y
             header={
                 <div className="flex justify-between items-center max-w-[1600px] mx-auto">
                     <h2 className="text-2xl font-bold text-slate-900 tracking-tight italic uppercase">Attendance</h2>
-                    <div className="flex items-center gap-3 text-sm text-slate-500 font-medium">
+                    <div className="flex items-center gap-2 text-sm text-slate-500 font-medium">
                         <span>Home</span>
                         <span className="text-slate-300">•</span>
                         <span className="text-blue-600 font-semibold">Attendance</span>
@@ -160,43 +149,40 @@ export default function Index({ employees, logs, holidays, daysInMonth, month, y
                 {/* Filters + Actions */}
                 <div className="flex flex-wrap gap-3 items-center justify-between">
                     <div className="flex flex-wrap gap-2 items-center">
-                        <select
-                            value={filterEmp}
-                            onChange={e => setFilterEmp(e.target.value)}
-                            className="h-9 px-3 border border-slate-200 rounded-lg text-sm bg-white font-medium text-slate-600 focus:ring-1 focus:ring-blue-500"
-                        >
+                        <select value={filterEmp} onChange={e => setFilterEmp(e.target.value)}
+                            className="h-9 px-3 border border-slate-200 rounded-lg text-sm bg-white font-medium text-slate-600 focus:ring-1 focus:ring-blue-500">
                             <option value="all">Employee All</option>
                             {employees.map(e => <option key={e.id} value={e.id}>{e.user?.name}</option>)}
                         </select>
-                        <select className="h-9 px-3 border border-slate-200 rounded-lg text-sm bg-white font-medium text-slate-600 focus:ring-1 focus:ring-blue-500">
+                        <select className="h-9 px-3 border border-slate-200 rounded-lg text-sm bg-white font-medium text-slate-600">
                             <option>Department All</option>
                         </select>
-                        <select className="h-9 px-3 border border-slate-200 rounded-lg text-sm bg-white font-medium text-slate-600 focus:ring-1 focus:ring-blue-500">
+                        <select className="h-9 px-3 border border-slate-200 rounded-lg text-sm bg-white font-medium text-slate-600">
                             <option>Designation All</option>
                         </select>
-                        {/* Month/Year nav */}
-                        <div className="flex items-center gap-1 border border-slate-200 rounded-lg overflow-hidden h-9">
-                            <button onClick={() => navigateMonth(-1)} className="px-2 h-full bg-white hover:bg-slate-50 text-slate-500 border-r border-slate-200 text-xs font-bold">‹</button>
-                            <span className="px-3 text-sm font-semibold text-slate-700 whitespace-nowrap">{MONTHS[month - 1]}</span>
-                            <button onClick={() => navigateMonth(1)} className="px-2 h-full bg-white hover:bg-slate-50 text-slate-500 border-l border-slate-200 text-xs font-bold">›</button>
+
+                        {/* Month navigator */}
+                        <div className="flex items-center gap-0 border border-slate-200 rounded-lg overflow-hidden h-9">
+                            <button onClick={() => navigateMonth(-1)} className="px-2.5 h-full bg-white hover:bg-slate-50 text-slate-500 border-r border-slate-200 text-xs font-bold">‹</button>
+                            <span className="px-4 text-sm font-semibold text-slate-700 whitespace-nowrap">{MONTHS[month - 1]}</span>
+                            <button onClick={() => navigateMonth(1)} className="px-2.5 h-full bg-white hover:bg-slate-50 text-slate-500 border-l border-slate-200 text-xs font-bold">›</button>
                         </div>
-                        <select
-                            defaultValue={year}
+                        <select defaultValue={year}
                             onChange={e => router.get(route('hr.attendance.index'), { month, year: e.target.value }, { preserveState: true })}
-                            className="h-9 px-3 border border-slate-200 rounded-lg text-sm bg-white font-medium text-slate-600 focus:ring-1 focus:ring-blue-500"
-                        >
+                            className="h-9 px-3 border border-slate-200 rounded-lg text-sm bg-white font-medium text-slate-600">
                             {[2023, 2024, 2025, 2026, 2027].map(y => <option key={y} value={y}>{y}</option>)}
                         </select>
                     </div>
 
                     <div className="flex gap-2">
-                        <button onClick={() => openMark()} className="h-9 px-4 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-sm shadow-blue-200">
+                        <button onClick={() => openMark()}
+                            className="h-9 px-4 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-sm shadow-blue-200">
                             <Plus className="w-4 h-4" /> Mark Attendance
                         </button>
-                        <button className="h-9 px-3 border border-slate-200 bg-white text-slate-600 rounded-lg text-sm font-semibold hover:bg-slate-50 transition-colors flex items-center gap-2">
+                        <button className="h-9 px-3 border border-slate-200 bg-white text-slate-600 rounded-lg text-sm font-semibold hover:bg-slate-50 flex items-center gap-2">
                             <Upload className="w-4 h-4" /> Import
                         </button>
-                        <button className="h-9 px-3 border border-slate-200 bg-white text-slate-600 rounded-lg text-sm font-semibold hover:bg-slate-50 transition-colors flex items-center gap-2">
+                        <button className="h-9 px-3 border border-slate-200 bg-white text-slate-600 rounded-lg text-sm font-semibold hover:bg-slate-50 flex items-center gap-2">
                             <Download className="w-4 h-4" /> Export
                         </button>
                         <button className="w-9 h-9 border border-slate-200 bg-white rounded-lg flex items-center justify-center text-slate-500 hover:bg-slate-50">
@@ -226,7 +212,7 @@ export default function Index({ employees, logs, holidays, daysInMonth, month, y
                     ))}
                 </div>
 
-                {/* Calendar Table */}
+                {/* Calendar Grid */}
                 <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="border-collapse text-xs" style={{ minWidth: `${230 + daysInMonth * 38}px` }}>
@@ -236,17 +222,15 @@ export default function Index({ employees, logs, holidays, daysInMonth, month, y
                                         Employee
                                     </th>
                                     {days.map(d => (
-                                        <th
-                                            key={d.date}
-                                            className={`w-[36px] py-3 text-center ${d.isWeekend ? 'bg-slate-100/60' : ''} ${isHoliday(d.date) ? 'bg-amber-50' : ''}`}
-                                        >
+                                        <th key={d.date}
+                                            className={`w-[36px] py-3 text-center ${d.isWeekend ? 'bg-slate-100/60' : ''} ${isHoliday(d.date) ? 'bg-amber-50' : ''}`}>
                                             <div className="flex flex-col items-center gap-0.5">
                                                 <span className={`font-black text-[11px] ${d.isWeekend ? 'text-slate-400' : 'text-slate-700'} ${isHoliday(d.date) ? '!text-amber-500' : ''}`}>{d.day}</span>
-                                                <span className={`font-bold text-[9px] uppercase ${d.isWeekend ? 'text-slate-300' : 'text-slate-300'}`}>{d.dayName}</span>
+                                                <span className="font-bold text-[9px] uppercase text-slate-300">{d.dayName}</span>
                                             </div>
                                         </th>
                                     ))}
-                                    <th className="px-4 py-3 text-right font-black uppercase text-[10px] tracking-widest text-slate-500 border-l border-slate-200 whitespace-nowrap w-[70px]">
+                                    <th className="px-4 py-3 text-right font-black uppercase text-[10px] tracking-widest text-slate-500 border-l border-slate-200 w-[70px]">
                                         Total
                                     </th>
                                 </tr>
@@ -255,7 +239,7 @@ export default function Index({ employees, logs, holidays, daysInMonth, month, y
                                 {filteredEmployees.map((emp, idx) => {
                                     const presentCount = days.filter(d => {
                                         const log = getLog(emp.id, d.date);
-                                        return log && (log.status === 'Present' || log.status === 'Late' || log.status === 'Half Day');
+                                        return log && ['Present', 'Late', 'Half Day'].includes(log.status);
                                     }).length;
 
                                     return (
@@ -274,10 +258,8 @@ export default function Index({ employees, logs, holidays, daysInMonth, month, y
                                                 </div>
                                             </td>
                                             {days.map(d => (
-                                                <td
-                                                    key={d.date}
-                                                    className={`text-center h-10 p-0 ${d.isWeekend ? 'bg-slate-50/60' : ''} ${isHoliday(d.date) ? 'bg-amber-50/60' : ''}`}
-                                                >
+                                                <td key={d.date}
+                                                    className={`text-center h-10 p-0 ${d.isWeekend ? 'bg-slate-50/60' : ''} ${isHoliday(d.date) ? 'bg-amber-50/60' : ''}`}>
                                                     {renderCell(emp.id, d)}
                                                 </td>
                                             ))}
@@ -315,7 +297,6 @@ export default function Index({ employees, logs, holidays, daysInMonth, month, y
                 }
             >
                 <form id="attendance-form" onSubmit={submitMark} className="space-y-6">
-                    {/* Employee */}
                     <div>
                         <label className="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-2">Employee <span className="text-red-500">*</span></label>
                         <select value={data.employee_id} onChange={e => setData('employee_id', e.target.value)}
@@ -326,27 +307,25 @@ export default function Index({ employees, logs, holidays, daysInMonth, month, y
                         {errors.employee_id && <p className="text-red-500 text-xs mt-1">{errors.employee_id}</p>}
                     </div>
 
-                    {/* Date */}
                     <div>
                         <label className="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-2">Date <span className="text-red-500">*</span></label>
                         <input type="date" value={data.date} onChange={e => setData('date', e.target.value)}
                             className="w-full h-10 px-3 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" />
                     </div>
 
-                    {/* Clock In / IP / Late */}
                     <div className="grid grid-cols-3 gap-4">
-                        <div className="col-span-1">
+                        <div>
                             <label className="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-2">Clock In <span className="text-red-500">*</span></label>
                             <input type="time" value={data.check_in} onChange={e => setData('check_in', e.target.value)}
                                 className="w-full h-10 px-3 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" />
                             {errors.check_in && <p className="text-red-500 text-xs mt-1">{errors.check_in}</p>}
                         </div>
-                        <div className="col-span-1">
+                        <div>
                             <label className="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-2">Clock In IP</label>
                             <input type="text" value={data.clock_in_ip} onChange={e => setData('clock_in_ip', e.target.value)}
                                 className="w-full h-10 px-3 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" />
                         </div>
-                        <div className="col-span-1">
+                        <div>
                             <label className="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-2">Late</label>
                             <button type="button" onClick={() => setData('is_late', !data.is_late)}
                                 className={`mt-1 relative w-10 h-5 rounded-full transition-colors ${data.is_late ? 'bg-blue-600' : 'bg-slate-200'}`}>
@@ -355,20 +334,18 @@ export default function Index({ employees, logs, holidays, daysInMonth, month, y
                         </div>
                     </div>
 
-                    {/* Clock Out / IP / Half Day */}
                     <div className="grid grid-cols-3 gap-4">
-                        <div className="col-span-1">
+                        <div>
                             <label className="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-2">Clock Out</label>
                             <input type="time" value={data.check_out} onChange={e => setData('check_out', e.target.value)}
-                                placeholder="e.g. 10:00"
                                 className="w-full h-10 px-3 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" />
                         </div>
-                        <div className="col-span-1">
+                        <div>
                             <label className="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-2">Clock Out IP</label>
                             <input type="text" value={data.clock_out_ip} onChange={e => setData('clock_out_ip', e.target.value)}
                                 className="w-full h-10 px-3 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500" />
                         </div>
-                        <div className="col-span-1">
+                        <div>
                             <label className="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-2">Half Day</label>
                             <button type="button" onClick={() => setData('is_half_day', !data.is_half_day)}
                                 className={`mt-1 relative w-10 h-5 rounded-full transition-colors ${data.is_half_day ? 'bg-blue-600' : 'bg-slate-200'}`}>
@@ -377,7 +354,6 @@ export default function Index({ employees, logs, holidays, daysInMonth, month, y
                         </div>
                     </div>
 
-                    {/* Location / Working From */}
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-2">Location</label>
