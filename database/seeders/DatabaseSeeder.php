@@ -165,5 +165,7 @@ class DatabaseSeeder extends Seeder
             'type' => 'Follow-Up Overdue',
             'status' => 'Pending',
         ]);
+
+        $this->call(HRModuleSeeder::class);
     }
 }
