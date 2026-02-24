@@ -75,6 +75,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('/leave/{leave}/approve', [\App\Http\Controllers\HR\LeaveController::class, 'approve'])->name('leave.approve');
         Route::patch('/leave/{leave}/reject', [\App\Http\Controllers\HR\LeaveController::class, 'reject'])->name('leave.reject');
         
+        Route::resource('holidays', \App\Http\Controllers\HR\HolidayController::class);
+        Route::resource('appreciations', \App\Http\Controllers\HR\AppreciationController::class);
+        
         Route::get('/payroll', [\App\Http\Controllers\HR\PayrollController::class, 'index'])->name('payroll.index');
         Route::get('/performance', [\App\Http\Controllers\HR\PerformanceController::class, 'index'])->name('performance.index');
     });

@@ -144,10 +144,10 @@ export default function Authenticated({
                 { name: 'Leaves', href: route('hr.leave.index'), icon: Calendar, permission: 'manage_hr', active: route().current('hr.leave.*') },
                 { name: 'Shift Roster', href: route('hr.shifts.index'), icon: Clock, permission: 'manage_hr', active: route().current('hr.shifts.*') },
                 { name: 'Attendance', href: route('hr.attendance.index'), icon: Clock, permission: 'mark_attendance', active: route().current('hr.attendance.*') },
-                { name: 'Holiday', href: '#', icon: Calendar, permission: 'manage_hr', active: false },
+                { name: 'Holiday', href: route('hr.holidays.index'), icon: Calendar, permission: 'manage_hr', active: route().current('hr.holidays.*') },
                 { name: 'Designation', href: route('hr.designations.index'), icon: Award, permission: 'manage_hr', active: route().current('hr.designations.*') },
                 { name: 'Department', href: route('hr.departments.index'), icon: Building2, permission: 'manage_hr', active: route().current('hr.departments.*') },
-                { name: 'Appreciation', href: '#', icon: Award, permission: 'manage_hr', active: false },
+                { name: 'Appreciation', href: route('hr.appreciations.index'), icon: Award, permission: 'manage_hr', active: route().current('hr.appreciations.*') },
                 { name: 'Performance', href: route('hr.performance.index'), icon: BarChart3, permission: 'manage_hr', active: route().current('hr.performance.*') },
             ]
         },
