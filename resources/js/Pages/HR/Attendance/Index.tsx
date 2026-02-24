@@ -1,7 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, router } from '@inertiajs/react';
 import { Plus, Download, Upload, List, User, Star, Check, Clock, X, Minus, Plane } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import Drawer from '@/Components/Drawer';
 
 interface Props {
@@ -27,6 +27,20 @@ const STATUS_CONFIG: Record<string, { label: string; icon: any; cell: string }> 
 
 export default function Index({ employees, logs, holidays, daysInMonth, month, year, stats }: Props) {
     const [isOpen, setIsOpen] = useState(false);
+    const [viewDropdown, setViewDropdown] = useState(false);
+    const [empDropdown, setEmpDropdown] = useState(false);
+    const viewRef = useRef<HTMLDivElement>(null);
+    const empRef = useRef<HTMLDivElement>(null);
+
+    // Close dropdowns on outside click
+    useEffect(() => {
+        const handler = (e: MouseEvent) => {
+            if (viewRef.current && !viewRef.current.contains(e.target as Node)) setViewDropdown(false);
+            if (empRef.current && !empRef.current.contains(e.target as Node)) setEmpDropdown(false);
+        };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, []);
     const [filterEmp, setFilterEmp] = useState('all');
 
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -213,12 +227,57 @@ export default function Index({ employees, logs, holidays, daysInMonth, month, y
                         <button className="h-9 px-3 border border-slate-200 bg-white text-slate-600 rounded-lg text-sm font-semibold hover:bg-slate-50 flex items-center gap-2">
                             <Download className="w-4 h-4" /> Export
                         </button>
-                        <button className="w-9 h-9 border border-slate-200 bg-white rounded-lg flex items-center justify-center text-slate-500 hover:bg-slate-50">
-                            <List className="w-4 h-4" />
-                        </button>
-                        <button className="w-9 h-9 border border-slate-200 bg-white rounded-lg flex items-center justify-center text-slate-500 hover:bg-slate-50">
-                            <User className="w-4 h-4" />
-                        </button>
+                        {/* View dropdown */}
+                        <div ref={viewRef} className="relative">
+                            <button
+                                onClick={() => setViewDropdown(v => !v)}
+                                className={`w-9 h-9 border rounded-lg flex items-center justify-center text-slate-500 transition-colors ${viewDropdown ? 'bg-blue-50 border-blue-300 text-blue-600' : 'border-slate-200 bg-white hover:bg-slate-50'}`}
+                                title="View options"
+                            >
+                                <List className="w-4 h-4" />
+                            </button>
+                            {viewDropdown && (
+                                <div className="absolute right-0 top-full mt-1.5 w-44 bg-white border border-slate-200 rounded-xl shadow-lg z-50 overflow-hidden">
+                                    <div className="px-3 py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">View</div>
+                                    {[
+                                        { label: 'Monthly View', active: true },
+                                        { label: 'Weekly View', active: false },
+                                        { label: 'Daily View', active: false },
+                                    ].map(item => (
+                                        <button key={item.label} className={`w-full text-left px-4 py-2.5 text-sm font-medium hover:bg-slate-50 transition-colors flex items-center gap-2 ${item.active ? 'text-blue-600' : 'text-slate-600'}`}>
+                                            {item.active && <span className="w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0" />}
+                                            {!item.active && <span className="w-1.5 h-1.5 flex-shrink-0" />}
+                                            {item.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Employee view dropdown */}
+                        <div ref={empRef} className="relative">
+                            <button
+                                onClick={() => setEmpDropdown(v => !v)}
+                                className={`w-9 h-9 border rounded-lg flex items-center justify-center text-slate-500 transition-colors ${empDropdown ? 'bg-blue-50 border-blue-300 text-blue-600' : 'border-slate-200 bg-white hover:bg-slate-50'}`}
+                                title="Employee options"
+                            >
+                                <User className="w-4 h-4" />
+                            </button>
+                            {empDropdown && (
+                                <div className="absolute right-0 top-full mt-1.5 w-48 bg-white border border-slate-200 rounded-xl shadow-lg z-50 overflow-hidden">
+                                    <div className="px-3 py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Employee</div>
+                                    {[
+                                        { label: 'Show All Employees' },
+                                        { label: 'Active Only' },
+                                        { label: 'Group by Department' },
+                                    ].map(item => (
+                                        <button key={item.label} className="w-full text-left px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
+                                            {item.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
 
