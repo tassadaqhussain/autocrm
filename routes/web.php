@@ -1,0 +1,92 @@
+<?php
+
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\LeadController;
+use App\Http\Controllers\CampaignController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ProfileController;
+use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
+
+Route::get('/', function () {
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
+    return redirect()->route('login');
+});
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', function() {
+        if (auth()->user()->role !== 'Admin') {
+            return redirect()->route('hr.attendance.index');
+        }
+        return (new DashboardController())->index();
+    })->name('dashboard');
+    
+    // Admin & Marketing Module
+    Route::middleware(['role:Admin,Media Manager'])->prefix('marketing')->name('marketing.')->group(function() {
+        Route::get('/dashboard', [\App\Http\Controllers\Marketing\DashboardController::class, 'index'])->name('dashboard');
+        Route::resource('campaigns', \App\Http\Controllers\Marketing\CampaignController::class);
+        Route::get('/campaigns/builder', [\App\Http\Controllers\Marketing\CampaignController::class, 'builder'])->name('campaigns.builder');
+        Route::resource('sources', \App\Http\Controllers\Marketing\LeadSourceController::class);
+        Route::resource('influencers', \App\Http\Controllers\Marketing\InfluencerController::class);
+        Route::resource('creatives', \App\Http\Controllers\Marketing\CreativeController::class);
+        Route::get('/finance', [\App\Http\Controllers\Marketing\ExpenseController::class, 'index'])->name('finance.index');
+        Route::resource('expenses', \App\Http\Controllers\Marketing\ExpenseController::class)->except(['index']);
+        Route::get('/attribution', [\App\Http\Controllers\Marketing\AttributionController::class, 'index'])->name('attribution.dashboard');
+        Route::get('/automation', [\App\Http\Controllers\Marketing\AutomationController::class, 'index'])->name('automation.index');
+        Route::get('/settings', [\App\Http\Controllers\Marketing\SettingsController::class, 'index'])->name('settings.index');
+    });
+
+    // CRM Leads
+    Route::middleware(['role:Admin,Counselor,Media Manager'])->group(function() {
+        Route::resource('leads', LeadController::class);
+        Route::patch('leads/{lead}/status', [LeadController::class, 'updateStatus'])->name('leads.status');
+    });
+
+    // Medical & Scheduling
+    Route::middleware(['role:Admin,Doctor,Counselor'])->group(function() {
+        Route::resource('appointments', \App\Http\Controllers\AppointmentController::class);
+    });
+    
+    // Core System Settings
+    Route::middleware(['role:Admin'])->prefix('settings')->name('settings.')->group(function() {
+        Route::get('/', [\App\Http\Controllers\SystemSettingsController::class, 'index'])->name('index');
+        Route::get('/roles', [\App\Http\Controllers\RolePermissionController::class, 'index'])->name('roles.index');
+        Route::patch('/roles/{role}', [\App\Http\Controllers\RolePermissionController::class, 'update'])->name('roles.update');
+    });
+    
+    // Core HR Management - Highly Sensitive (Admin Only)
+    Route::prefix('hr')->name('hr.')->middleware(['role:Admin'])->group(function () {
+        Route::get('/dashboard', [\App\Http\Controllers\HR\DashboardController::class, 'index'])->name('dashboard');
+        
+        Route::get('/clinic-profile', [\App\Http\Controllers\ClinicProfileController::class, 'show'])->name('clinic.profile');
+        Route::patch('/clinic-profile', [\App\Http\Controllers\ClinicProfileController::class, 'update'])->name('clinic.update');
+        
+        Route::resource('employees', \App\Http\Controllers\HR\EmployeeController::class);
+        Route::resource('departments', \App\Http\Controllers\HR\DepartmentController::class);
+        Route::resource('designations', \App\Http\Controllers\HR\DesignationController::class);
+        Route::post('/departments/quick-add', [\App\Http\Controllers\HR\DepartmentController::class, 'quickStore'])->name('departments.quick-store');
+        Route::post('/designations/quick-add', [\App\Http\Controllers\HR\DepartmentController::class, 'quickStoreDesignation'])->name('designations.quick-store');
+        
+        Route::get('/leave', [\App\Http\Controllers\HR\LeaveController::class, 'index'])->name('leave.index');
+        Route::get('/payroll', [\App\Http\Controllers\HR\PayrollController::class, 'index'])->name('payroll.index');
+        Route::get('/performance', [\App\Http\Controllers\HR\PerformanceController::class, 'index'])->name('performance.index');
+    });
+
+    // Self Service (Attendance) - Open to All Auth Employees
+    Route::get('hr/attendance', [\App\Http\Controllers\HR\AttendanceController::class, 'index'])->name('hr.attendance.index');
+    Route::post('hr/attendance/check-in', [\App\Http\Controllers\HR\AttendanceController::class, 'checkIn'])->name('hr.attendance.check-in');
+    Route::post('hr/attendance/check-out', [\App\Http\Controllers\HR\AttendanceController::class, 'checkOut'])->name('hr.attendance.check-out');
+
+    Route::get('/reports', [\App\Http\Controllers\ReportsController::class, 'index'])->name('reports.index')->middleware(['role:Admin,Media Manager']);
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+require __DIR__.'/auth.php';
