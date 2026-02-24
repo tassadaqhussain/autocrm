@@ -17,7 +17,8 @@ export default function Index({ appreciations, employees }: Props) {
         employee_id: '',
         title: '',
         description: '',
-        given_date: ''
+        given_date: '',
+        cc_email: ''
     });
 
     const handleCreateOrUpdate = (e: React.FormEvent) => {
@@ -64,7 +65,7 @@ export default function Index({ appreciations, employees }: Props) {
                     <button
                         onClick={() => {
                             setEditingId(null);
-                            setData({ employee_id: employees[0]?.id || '', title: '', description: '', given_date: new Date().toISOString().split('T')[0] });
+                            setData({ employee_id: employees[0]?.id || '', title: '', description: '', given_date: new Date().toISOString().split('T')[0], cc_email: '' });
                             clearErrors();
                             setIsModalOpen(true);
                         }}
@@ -121,7 +122,8 @@ export default function Index({ appreciations, employees }: Props) {
                                                                 employee_id: appr.employee_id,
                                                                 title: appr.title,
                                                                 description: appr.description || '',
-                                                                given_date: appr.given_date
+                                                                given_date: appr.given_date,
+                                                                cc_email: ''
                                                             });
                                                             clearErrors();
                                                             setIsModalOpen(true);
@@ -207,6 +209,18 @@ export default function Index({ appreciations, employees }: Props) {
                                 placeholder="Reason for appreciation..."
                             />
                             {errors.description && <div className="text-red-500 text-xs mt-1">{errors.description}</div>}
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-semibold text-slate-700 mb-2">CC Email (Optional)</label>
+                            <input
+                                type="email"
+                                value={data.cc_email}
+                                onChange={e => setData('cc_email', e.target.value)}
+                                className="w-full h-10 px-3 bg-white border border-slate-300 rounded-md text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors shadow-sm"
+                                placeholder="e.g. manager@crm.com"
+                            />
+                            {errors.cc_email && <div className="text-red-500 text-xs mt-1">{errors.cc_email}</div>}
                         </div>
                     </div>
 
