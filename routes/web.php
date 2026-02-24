@@ -84,6 +84,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         
         Route::get('/payroll', [\App\Http\Controllers\HR\PayrollController::class, 'index'])->name('payroll.index');
         Route::get('/performance', [\App\Http\Controllers\HR\PerformanceController::class, 'index'])->name('performance.index');
+        Route::post('/performance', [\App\Http\Controllers\HR\PerformanceController::class, 'store'])->name('performance.store');
+        Route::patch('/performance/{review}', [\App\Http\Controllers\HR\PerformanceController::class, 'update'])->name('performance.update');
+        Route::delete('/performance/{review}', [\App\Http\Controllers\HR\PerformanceController::class, 'destroy'])->name('performance.destroy');
     });
 
     // Self Service (Attendance) - Open to All Auth Employees
