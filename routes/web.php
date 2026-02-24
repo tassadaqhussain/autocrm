@@ -78,6 +78,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('holidays', \App\Http\Controllers\HR\HolidayController::class);
         Route::resource('appreciations', \App\Http\Controllers\HR\AppreciationController::class);
         
+        // Roster
+        Route::get('/roster', [\App\Http\Controllers\HR\RosterController::class, 'index'])->name('roster.index');
+        Route::post('/roster', [\App\Http\Controllers\HR\RosterController::class, 'store'])->name('roster.store');
+        
         Route::get('/payroll', [\App\Http\Controllers\HR\PayrollController::class, 'index'])->name('payroll.index');
         Route::get('/performance', [\App\Http\Controllers\HR\PerformanceController::class, 'index'])->name('performance.index');
     });

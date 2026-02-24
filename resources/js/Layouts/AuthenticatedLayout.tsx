@@ -87,12 +87,13 @@ export default function Authenticated({
             name: 'Settings',
             href: route('settings.index'),
             icon: Settings,
-            active: route().current('settings.*') || route().current('hr.clinic.*'),
+            active: route().current('settings.*') || route().current('hr.clinic.*') || route().current('hr.shifts.*'),
             permission: 'manage_clinic',
             children: [
                 { name: 'System Settings', href: route('settings.index'), icon: LayoutGrid, permission: '*', active: route().current('settings.index') },
                 { name: 'Role Management', href: route('settings.roles.index'), icon: Shield, permission: '*', active: route().current('settings.roles.*') },
                 { name: 'Clinic Profile', href: route('hr.clinic.profile'), icon: Building2, permission: 'manage_clinic', active: route().current('hr.clinic.*') },
+                { name: 'Operational Shifts', href: route('hr.shifts.index'), icon: Clock, permission: 'manage_hr', active: route().current('hr.shifts.*') },
             ]
         },
         {
@@ -142,7 +143,7 @@ export default function Authenticated({
                 { name: 'Dashboard', href: route('hr.dashboard'), icon: LayoutGrid, permission: 'manage_hr', active: route().current('hr.dashboard') },
                 { name: 'Employees', href: route('hr.employees.index'), icon: User, permission: 'manage_hr', active: route().current('hr.employees.*') },
                 { name: 'Leaves', href: route('hr.leave.index'), icon: Calendar, permission: 'manage_hr', active: route().current('hr.leave.*') },
-                { name: 'Shift Roster', href: route('hr.shifts.index'), icon: Clock, permission: 'manage_hr', active: route().current('hr.shifts.*') },
+                { name: 'Shift Roster', href: route('hr.roster.index'), icon: Calendar, permission: 'manage_hr', active: route().current('hr.roster.*') },
                 { name: 'Attendance', href: route('hr.attendance.index'), icon: Clock, permission: 'mark_attendance', active: route().current('hr.attendance.*') },
                 { name: 'Holiday', href: route('hr.holidays.index'), icon: Calendar, permission: 'manage_hr', active: route().current('hr.holidays.*') },
                 { name: 'Designation', href: route('hr.designations.index'), icon: Award, permission: 'manage_hr', active: route().current('hr.designations.*') },
