@@ -67,6 +67,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('employees', \App\Http\Controllers\HR\EmployeeController::class);
         Route::resource('departments', \App\Http\Controllers\HR\DepartmentController::class);
         Route::resource('designations', \App\Http\Controllers\HR\DesignationController::class);
+        Route::resource('shifts', \App\Http\Controllers\HR\ShiftController::class);
         Route::post('/departments/quick-add', [\App\Http\Controllers\HR\DepartmentController::class, 'quickStore'])->name('departments.quick-store');
         Route::post('/designations/quick-add', [\App\Http\Controllers\HR\DepartmentController::class, 'quickStoreDesignation'])->name('designations.quick-store');
         

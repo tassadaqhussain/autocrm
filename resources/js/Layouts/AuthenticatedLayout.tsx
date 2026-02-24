@@ -87,7 +87,7 @@ export default function Authenticated({
             name: 'Settings',
             href: route('settings.index'),
             icon: Settings,
-            active: route().current('settings.*') || route().current('hr.clinic.*') || route().current('hr.departments.*') || route().current('hr.designations.*'),
+            active: route().current('settings.*') || route().current('hr.clinic.*') || route().current('hr.departments.*') || route().current('hr.designations.*') || route().current('hr.shifts.*'),
             permission: 'manage_clinic',
             children: [
                 { name: 'System Settings', href: route('settings.index'), icon: LayoutGrid, permission: '*', active: route().current('settings.index') },
@@ -95,7 +95,7 @@ export default function Authenticated({
                 { name: 'Clinic Profile', href: route('hr.clinic.profile'), icon: Building2, permission: 'manage_clinic', active: route().current('hr.clinic.*') },
                 { name: 'Departments', href: route('hr.departments.index'), icon: Command, permission: 'manage_clinic', active: route().current('hr.departments.*') },
                 { name: 'Designations', href: route('hr.designations.index'), icon: Award, permission: 'manage_clinic', active: route().current('hr.designations.*') },
-                { name: 'Operational Shifts', href: '#', icon: Clock, permission: 'manage_clinic', active: false },
+                { name: 'Operational Shifts', href: route('hr.shifts.index'), icon: Clock, permission: 'manage_clinic', active: route().current('hr.shifts.*') },
             ]
         },
         {
