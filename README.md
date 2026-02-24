@@ -1,59 +1,91 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# AutoCRM - Enterprise Clinic Management System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A comprehensive, scalable, and modern enterprise Customer Relationship Management (CRM) system tailored for clinics. Provides advanced modular capabilities across HR, Finance, Marketing, and Operations with a robust Role-Based Access Control (RBAC) foundation.
 
-## About Laravel
+Built with bleeding-edge tools, this project emphasizes performance, aesthetics, and developer experience.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🚀 Tech Stack
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+*   **Backend:** Laravel (v12.x) - PHP 8.3
+*   **Frontend:** React (v18.x) with Inertia.js
+*   **Styling:** TailwindCSS (v4.x)
+*   **Icons & UI:** Lucide React, Recharts (for Analytics)
+*   **Database:** MySQL
+*   **Package Managers:** Composer, NPM
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## ✨ Core Modules
 
-## Learning Laravel
+### 1. Dynamic RBAC System
+*   Database-driven Roles and Permissions management.
+*   Granular permissions allowing specific UI rendering based on the user's role limits constraints.
+*   Matrix-style Settings dashboard for Admins to toggle access logic freely.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### 2. Marketing Hub
+*   **Dashboard & Analytics:** Recharts integration for complex lead/conversion data distribution.
+*   **Campaign Management:** Manage and monitor marketing drives alongside their generated reach.
+*   **Influencer & Sources:** Track lead attribution to designated channels or content creators.
+*   **Library:** Dynamic creative control.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 3. HR & Clinic Architecture
+*   **Clinic Profile:** Global identity settings control.
+*   **Hierarchy Modeling:** Setup dynamic **Departments** and map corresponding **Designations**.
+*   **Employees & Staffing:** Full employee tracking.
 
-## Laravel Sponsors
+### 4. CRM & Leads Flow
+*   Seamless migration of leads to formal patients.
+*   Pipeline monitoring via 'Deals'.
+*   Patient interaction and appointment tracking.
+*   Full visual pipeline tracking.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### 5. Finance Management
+*   Directly manage proposals, invoices, and estimates.
+*   Track clinic expenses, credit notes, and associated bank accounts interactively.
 
-### Premium Partners
+## 🛠️ Installation & Setup
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/tassadaqhussain/autocrm.git
+   cd autocrm
+   ```
 
-## Contributing
+2. **Install PHP Dependencies:**
+   ```bash
+   composer install
+   ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+3. **Install Node Dependencies:**
+   ```bash
+   npm install --legacy-peer-deps
+   ```
 
-## Code of Conduct
+4. **Environment Setup:**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+   *Note: Ensure you configure your database connection parameters in your `.env` file.*
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+5. **Database Migrations & Seeding:**
+   ```bash
+   php artisan migrate --seed
+   ```
+   *This seeds core permissions, default roles (Admin, Doctor, Counselor, Media Manager), modules, dummy clinic data, and super-user credentials.*
 
-## Security Vulnerabilities
+6. **Serve the Application:**
+   ```bash
+   # Terminal 1 - Serve Laravel Backend
+   php artisan serve
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+   # Terminal 2 - Compile Frontend Assets
+   npm run dev
+   ```
 
-## License
+## 🔒 Security
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+*   Endpoints handling HR/Finance are strictly gated via `['role:Admin']` and specific permissions arrays. 
+*   Inertia's HTTP Middleware abstracts validation requests safely from clients.
+
+## 📝 License
+
+This project is proprietary and confidential. Unauthorized copying of this project, via any medium, is strictly prohibited.
