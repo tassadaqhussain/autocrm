@@ -149,29 +149,57 @@ export default function Index({ employees, logs, holidays, daysInMonth, month, y
                 {/* Filters + Actions */}
                 <div className="flex flex-wrap gap-3 items-center justify-between">
                     <div className="flex flex-wrap gap-2 items-center">
-                        <select value={filterEmp} onChange={e => setFilterEmp(e.target.value)}
-                            className="h-9 px-3 border border-slate-200 rounded-lg text-sm bg-white font-medium text-slate-600 focus:ring-1 focus:ring-blue-500">
-                            <option value="all">Employee All</option>
-                            {employees.map(e => <option key={e.id} value={e.id}>{e.user?.name}</option>)}
-                        </select>
-                        <select className="h-9 px-3 border border-slate-200 rounded-lg text-sm bg-white font-medium text-slate-600">
-                            <option>Department All</option>
-                        </select>
-                        <select className="h-9 px-3 border border-slate-200 rounded-lg text-sm bg-white font-medium text-slate-600">
-                            <option>Designation All</option>
-                        </select>
+
+                        {/* Employee filter */}
+                        <div className="relative">
+                            <select value={filterEmp} onChange={e => setFilterEmp(e.target.value)}
+                                className="h-9 pl-3 pr-8 border border-slate-200 rounded-lg text-sm bg-white font-medium text-slate-600 focus:ring-1 focus:ring-blue-500 appearance-none cursor-pointer shadow-sm">
+                                <option value="all">Employee: All</option>
+                                {employees.map(e => <option key={e.id} value={e.id}>{e.user?.name}</option>)}
+                            </select>
+                            <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400">
+                                <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+                            </span>
+                        </div>
+
+                        {/* Department filter */}
+                        <div className="relative">
+                            <select className="h-9 pl-3 pr-8 border border-slate-200 rounded-lg text-sm bg-white font-medium text-slate-600 focus:ring-1 focus:ring-blue-500 appearance-none cursor-pointer shadow-sm">
+                                <option>Department: All</option>
+                            </select>
+                            <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400">
+                                <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+                            </span>
+                        </div>
+
+                        {/* Designation filter */}
+                        <div className="relative">
+                            <select className="h-9 pl-3 pr-8 border border-slate-200 rounded-lg text-sm bg-white font-medium text-slate-600 focus:ring-1 focus:ring-blue-500 appearance-none cursor-pointer shadow-sm">
+                                <option>Designation: All</option>
+                            </select>
+                            <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400">
+                                <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+                            </span>
+                        </div>
 
                         {/* Month navigator */}
-                        <div className="flex items-center gap-0 border border-slate-200 rounded-lg overflow-hidden h-9">
-                            <button onClick={() => navigateMonth(-1)} className="px-2.5 h-full bg-white hover:bg-slate-50 text-slate-500 border-r border-slate-200 text-xs font-bold">‹</button>
+                        <div className="flex items-center gap-0 border border-slate-200 rounded-lg overflow-hidden h-9 shadow-sm bg-white">
+                            <button onClick={() => navigateMonth(-1)} className="px-2.5 h-full hover:bg-slate-50 text-slate-500 border-r border-slate-200 text-xs font-bold transition-colors">‹</button>
                             <span className="px-4 text-sm font-semibold text-slate-700 whitespace-nowrap">{MONTHS[month - 1]}</span>
-                            <button onClick={() => navigateMonth(1)} className="px-2.5 h-full bg-white hover:bg-slate-50 text-slate-500 border-l border-slate-200 text-xs font-bold">›</button>
+                            <button onClick={() => navigateMonth(1)} className="px-2.5 h-full hover:bg-slate-50 text-slate-500 border-l border-slate-200 text-xs font-bold transition-colors">›</button>
                         </div>
-                        <select defaultValue={year}
-                            onChange={e => router.get(route('hr.attendance.index'), { month, year: e.target.value }, { preserveState: true })}
-                            className="h-9 px-3 border border-slate-200 rounded-lg text-sm bg-white font-medium text-slate-600">
-                            {[2023, 2024, 2025, 2026, 2027].map(y => <option key={y} value={y}>{y}</option>)}
-                        </select>
+
+                        {/* Year filter */}
+                        <div className="relative">
+                            <select defaultValue={year}
+                                onChange={e => router.get(route('hr.attendance.index'), { month, year: e.target.value }, { preserveState: true })}
+                                className="h-9 pl-3 pr-8 border border-slate-200 rounded-lg text-sm bg-white font-medium text-slate-600 focus:ring-1 focus:ring-blue-500 appearance-none cursor-pointer shadow-sm">
+                                {[2023, 2024, 2025, 2026, 2027].map(y => <option key={y} value={y}>{y}</option>)}
+                            </select>
+                            <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400">
+                                <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+                            </span>
+                        </div>
                     </div>
 
                     <div className="flex gap-2">
