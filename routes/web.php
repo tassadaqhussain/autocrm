@@ -88,6 +88,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Self Service (Attendance) - Open to All Auth Employees
     Route::get('hr/attendance', [\App\Http\Controllers\HR\AttendanceController::class, 'index'])->name('hr.attendance.index');
+    Route::post('hr/attendance/mark', [\App\Http\Controllers\HR\AttendanceController::class, 'mark'])->name('hr.attendance.mark');
     Route::post('hr/attendance/check-in', [\App\Http\Controllers\HR\AttendanceController::class, 'checkIn'])->name('hr.attendance.check-in');
     Route::post('hr/attendance/check-out', [\App\Http\Controllers\HR\AttendanceController::class, 'checkOut'])->name('hr.attendance.check-out');
 
