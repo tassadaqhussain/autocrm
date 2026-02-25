@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
-use App\Models\Lead;
+use App\Modules\Leads\Models\Lead;
 use App\Models\Campaign;
 use App\Models\Appointment;
 
@@ -13,7 +13,7 @@ class Clinic extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'slug', 'logo', 'settings', 'is_active'];
+    protected $fillable = ['name', 'slug', 'logo', 'settings', 'is_active', 'service_type_id', 'subscription_plan_id', 'status'];
 
     protected $casts = [
         'settings' => 'array',
@@ -28,6 +28,11 @@ class Clinic extends Model
     public function leads()
     {
         return $this->hasMany(Lead::class);
+    }
+
+    public function serviceType()
+    {
+        return $this->belongsTo(ServiceType::class);
     }
 
     public function campaigns()

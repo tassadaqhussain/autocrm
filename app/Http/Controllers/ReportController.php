@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Lead;
+use App\Modules\Leads\Models\Lead;
 use App\Models\Campaign;
 use Illuminate\Http\Request;
 use Inertia\Inertia;

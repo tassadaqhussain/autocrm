@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\LeadController;
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ProfileController;
@@ -15,6 +14,15 @@ Route::get('/', function () {
     }
     return redirect()->route('login');
 });
+
+// Public invitation link: redirect to signup (register) page with token
+Route::get('/invitation/{token}', function (string $token) {
+    $invitation = \App\Models\HR\EmployeeInvitation::where('token', $token)->first();
+    if (!$invitation || !$invitation->isValid()) {
+        return redirect()->route('login')->with('error', 'This invitation link is invalid or has expired.');
+    }
+    return redirect()->route('register', ['invitation' => $token]);
+})->name('invitation.show');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', function() {
@@ -39,10 +47,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/settings', [\App\Http\Controllers\Marketing\SettingsController::class, 'index'])->name('settings.index');
     });
 
-    // CRM Leads
-    Route::middleware(['role:Admin,Counselor,Media Manager'])->group(function() {
-        Route::resource('leads', LeadController::class);
-        Route::patch('leads/{lead}/status', [LeadController::class, 'updateStatus'])->name('leads.status');
+    // CRM Leads, Deals & Clients (module-based; module middleware enforces service-type access)
+    Route::middleware(['role:Admin,Counselor,Media Manager'])->group(function () {
+        Route::middleware(['module:leads'])->group(fn () => require base_path('app/Modules/Leads/Routes/web.php'));
+        Route::middleware(['module:deals'])->group(fn () => require base_path('app/Modules/Deals/Routes/web.php'));
+        Route::middleware(['module:clients'])->group(fn () => require base_path('app/Modules/Clients/Routes/web.php'));
     });
 
     // Medical & Scheduling
@@ -64,6 +73,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/clinic-profile', [\App\Http\Controllers\ClinicProfileController::class, 'show'])->name('clinic.profile');
         Route::patch('/clinic-profile', [\App\Http\Controllers\ClinicProfileController::class, 'update'])->name('clinic.update');
         
+        Route::post('/employees/invite', [\App\Http\Controllers\HR\EmployeeController::class, 'invite'])->name('employees.invite');
+        Route::post('/employees/invite-link', [\App\Http\Controllers\HR\EmployeeController::class, 'createInviteLink'])->name('employees.invite-link');
         Route::resource('employees', \App\Http\Controllers\HR\EmployeeController::class);
         Route::resource('departments', \App\Http\Controllers\HR\DepartmentController::class);
         Route::resource('designations', \App\Http\Controllers\HR\DesignationController::class);

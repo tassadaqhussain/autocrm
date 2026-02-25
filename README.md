@@ -4,6 +4,17 @@ A comprehensive, scalable, and modern enterprise Customer Relationship Managemen
 
 Built with bleeding-edge tools, this project emphasizes performance, aesthetics, and developer experience.
 
+## AI Instruction
+
+Before generating any code:
+
+1. Read all architecture markdown files.
+2. Follow them strictly.
+3. Do not simplify structure.
+4. Do not merge layers.
+5. Respect multi-tenancy.
+6. Use enterprise patterns only.
+
 ## 🚀 Tech Stack
 
 *   **Backend:** Laravel (v12.x) - PHP 8.3

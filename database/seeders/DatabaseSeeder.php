@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use App\Models\Campaign;
-use App\Models\Lead;
+use App\Modules\Leads\Models\Lead;
 use App\Models\Alert;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -16,11 +16,17 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call(ServiceTypeSeeder::class);
+        $this->call(ServiceTypeModuleSeeder::class);
+
+        $crmServiceType = \App\Models\ServiceType::where('code', 'crm')->first();
+
         // Default Clinic
         $clinic = \App\Models\Clinic::create([
             'name' => 'Elite Medical Clinic',
             'slug' => 'elite-medical',
             'settings' => ['timezone' => 'UTC'],
+            'service_type_id' => $crmServiceType?->id,
         ]);
 
         // 1. Permissions Setup

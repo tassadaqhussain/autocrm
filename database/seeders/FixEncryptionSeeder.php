@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\User;
-use App\Models\Lead;
+use App\Modules\Leads\Models\Lead;
 use Illuminate\Support\Facades\Crypt;
 
 class FixEncryptionSeeder extends Seeder

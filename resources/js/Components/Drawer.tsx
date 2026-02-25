@@ -34,7 +34,7 @@ export default function Drawer({
                     leaveFrom="opacity-100"
                     leaveTo="opacity-0"
                 >
-                    <div className="fixed inset-0 bg-slate-900/10 backdrop-blur-[2px] transition-opacity" />
+                    <div className="fixed inset-0 bg-slate-900/30 transition-opacity" />
                 </Transition.Child>
 
                 <div className="fixed inset-0 overflow-hidden">
@@ -49,39 +49,42 @@ export default function Drawer({
                                 leaveFrom="translate-x-0"
                                 leaveTo="translate-x-full"
                             >
-                                <Dialog.Panel className={cn("pointer-events-auto w-screen shadow-2xl shadow-slate-900/5", maxWidth)}>
+                                <Dialog.Panel className={cn("pointer-events-auto w-screen relative bg-white shadow-[0_0_50px_rgba(0,0,0,0.15)]", maxWidth)}>
+                                    {/* Close button - pill on dark backdrop, overlaps white panel */}
+                                    <button
+                                        type="button"
+                                        onClick={onClose}
+                                        className="absolute left-0 top-0 z-10 w-12 h-12 -translate-x-[90%] flex items-center justify-center rounded-full bg-[#4358E4] text-white hover:bg-[#3649c7] active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-white"
+                                        aria-label="Close"
+                                    >
+                                        <X className="w-5 h-5" strokeWidth={2.5} />
+                                    </button>
+
                                     <div className="flex h-full flex-col bg-white">
-                                        {/* Premium Compact Header */}
-                                        <div className="px-10 py-6 border-b border-slate-50 flex items-center justify-between">
-                                            <div>
-                                                <Dialog.Title className="text-xl font-bold text-slate-900 tracking-tight">
+                                        {/* Compact header */}
+                                        <div className="flex items-center gap-4 pl-2 pr-6 py-4 border-b border-slate-200 shrink-0">
+                                            <div className="min-w-0 flex-1">
+                                                <Dialog.Title className="text-lg font-semibold text-slate-900 truncate">
                                                     {title}
                                                 </Dialog.Title>
                                                 {description && (
-                                                    <p className="text-[10px] font-medium text-slate-400 mt-1 uppercase tracking-widest leading-none">
+                                                    <p className="text-xs text-slate-500 mt-0.5 truncate">
                                                         {description}
                                                     </p>
                                                 )}
                                             </div>
-                                            <button
-                                                type="button"
-                                                className="p-2 rounded-lg text-slate-300 hover:text-slate-900 hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100"
-                                                onClick={onClose}
-                                            >
-                                                <X className="h-5 w-5" />
-                                            </button>
                                         </div>
 
-                                        {/* Body - Clean & Spacious */}
-                                        <div className="relative flex-1 p-10 overflow-y-auto overflow-x-hidden scroll-smooth">
+                                        {/* Body */}
+                                        <div className="relative flex-1 px-6 py-5 overflow-y-auto overflow-x-hidden scroll-smooth">
                                             <div className="max-w-4xl mx-auto">
                                                 {children}
                                             </div>
                                         </div>
 
-                                        {/* Action Bar */}
+                                        {/* Footer */}
                                         {footer && (
-                                            <div className="shrink-0 border-t border-slate-50 px-10 py-6 bg-slate-50/20">
+                                            <div className="shrink-0 border-t border-slate-200 px-6 py-4 bg-slate-50/50">
                                                 <div className="max-w-4xl mx-auto">
                                                     {footer}
                                                 </div>

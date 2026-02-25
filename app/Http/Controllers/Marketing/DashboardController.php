@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Marketing;
 
 use App\Http\Controllers\Controller;
 use App\Models\Campaign;
-use App\Models\Lead;
+use App\Modules\Leads\Models\Lead;
 use App\Models\Marketing\MarketingExpense;
 use Illuminate\Http\Request;
 use Inertia\Inertia;

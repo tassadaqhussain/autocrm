@@ -13,6 +13,7 @@ import {
     Bell,
     Search,
     ChevronLeft,
+    ChevronDown,
     Menu,
     X,
     MessageSquare,
@@ -48,6 +49,9 @@ interface NavItem {
     icon: any;
     active: boolean;
     permission?: string;
+    /** Module name for service-type gating; hidden when not in auth.user.enabled_modules (null = show all) */
+    module?: string;
+    roles?: string[];
     children?: NavItem[];
 }
 
@@ -55,6 +59,7 @@ export default function Authenticated({
     header,
     children,
 }: PropsWithChildren<{ header?: ReactNode }>) {
+    const { url } = usePage();
     const user = usePage().props.auth.user;
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -63,7 +68,27 @@ export default function Authenticated({
         return user.all_permissions.includes('*') || user.all_permissions.includes(permission);
     };
 
-    const navigation: NavItem[] = [
+    const enabledModules: string[] | null = user?.enabled_modules ?? null;
+    const canModule = (moduleName: string) =>
+        enabledModules === null || enabledModules.includes(moduleName);
+
+    const navVisible = (item: NavItem): boolean => {
+        if (item.permission && !can(item.permission)) return false;
+        if (item.module && !canModule(item.module)) return false;
+        if (item.children?.length) {
+            const visibleChildren = item.children.filter(navVisible);
+            return visibleChildren.length > 0;
+        }
+        return true;
+    };
+
+    const filterNav = (items: NavItem[]): NavItem[] =>
+        items.filter(navVisible).map((item) => ({
+            ...item,
+            children: item.children ? filterNav(item.children) : undefined,
+        }));
+
+    const navigation: NavItem[] = filterNav([
         {
             name: 'Dashboard',
             href: route('dashboard'),
@@ -100,14 +125,45 @@ export default function Authenticated({
             name: 'CRM',
             href: route('appointments.index'),
             icon: Users,
-            active: route().current('appointments.*') || route().current('leads.*'),
+            active: route().current('appointments.*') || route().current('leads.*') || route().current('deals.*') || route().current('clients.*'),
             permission: 'view_crm',
             children: [
-                { name: 'Patients', href: '#', icon: Users, permission: 'view_patients', active: false },
-                { name: 'Leads', href: route('leads.index'), icon: Folder, permission: 'view_leads', active: route().current('leads.*') },
-                { name: 'Lead Contact', href: '#', icon: Contact, permission: 'view_leads', active: false },
-                { name: 'Deals', href: '#', icon: Handshake, permission: 'manage_leads', active: false },
-                { name: 'Appointments', href: route('appointments.index'), icon: Calendar, permission: 'view_appointments', active: route().current('appointments.*') },
+                { name: 'Patients', href: '#', icon: Users, permission: 'view_patients', module: 'patients', active: false },
+                { name: 'Clients', href: route('clients.index'), icon: Users, permission: 'view_crm', module: 'clients', active: route().current('clients.*') },
+                {
+                    name: 'Leads',
+                    href: '#',
+                    icon: Folder,
+                    permission: 'view_leads',
+                    active: route().current('leads.*'),
+                    children: [
+                        {
+                            name: 'Lead Contact',
+                            href: route('leads.index'),
+                            icon: Contact,
+                            permission: 'view_leads',
+                            module: 'leads',
+                            active: route().current('leads.index') && !url.includes('view=pipeline')
+                        },
+                        {
+                            name: 'Deals',
+                            href: route('leads.index', { view: 'pipeline' }),
+                            icon: Handshake,
+                            permission: 'manage_leads',
+                            module: 'deals',
+                            active: route().current('leads.index') && url.includes('view=pipeline')
+                        },
+                        {
+                            name: 'Add Lead',
+                            href: route('leads.index', { create: 'true' }),
+                            icon: Plus,
+                            permission: 'manage_leads',
+                            module: 'leads',
+                            active: route().current('leads.create')
+                        }
+                    ]
+                },
+                { name: 'Appointments', href: route('appointments.index'), icon: Calendar, permission: 'view_appointments', module: 'appointments', active: route().current('appointments.*') },
             ]
         },
         {
@@ -169,7 +225,7 @@ export default function Authenticated({
             ]
         },
 
-    ].filter(item => !item.permission || can(item.permission));
+    ]);
 
     // Secondary sidebar filter for children
     const activeModule = navigation.find(n => n.active);
@@ -241,19 +297,56 @@ export default function Authenticated({
 
                     <div className="px-4 space-y-1.5">
                         {filteredChildren.map((child) => (
-                            <Link
-                                key={child.name}
-                                href={child.href}
-                                className={cn(
-                                    "flex items-center gap-4 px-4 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all",
-                                    child.active
-                                        ? "bg-white text-indigo-600 shadow-sm border border-slate-100/50"
-                                        : "text-slate-400 hover:text-slate-700 hover:bg-slate-50/80"
+                            <div key={child.name}>
+                                {child.children ? (
+                                    <div className="space-y-1">
+                                        <button
+                                            className={cn(
+                                                "w-full flex items-center justify-between px-4 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all",
+                                                child.active
+                                                    ? "bg-white text-indigo-600 shadow-sm border border-slate-100/50"
+                                                    : "text-slate-400 hover:text-slate-700 hover:bg-slate-50/80"
+                                            )}
+                                        >
+                                            <div className="flex items-center gap-4">
+                                                <child.icon className="w-4 h-4" />
+                                                {child.name}
+                                            </div>
+                                            <ChevronDown className={cn("w-3 h-3 opacity-50 transition-transform", child.active ? "rotate-0" : "-rotate-90")} />
+                                        </button>
+                                        <div className="pl-12 space-y-1 mt-1">
+                                            {child.children.map((subChild) => (
+                                                <Link
+                                                    key={subChild.name}
+                                                    href={subChild.href}
+                                                    className={cn(
+                                                        "flex items-center gap-3 py-2 text-[10px] font-bold uppercase tracking-widest transition-all relative group",
+                                                        subChild.active ? "text-indigo-600" : "text-slate-400 hover:text-slate-600"
+                                                    )}
+                                                >
+                                                    {subChild.active && (
+                                                        <div className="absolute left-[-12px] w-1 h-3 bg-indigo-600 rounded-full" />
+                                                    )}
+                                                    {subChild.name}
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <Link
+                                        href={child.href}
+                                        className={cn(
+                                            "flex items-center gap-4 px-4 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all",
+                                            child.active
+                                                ? "bg-white text-indigo-600 shadow-sm border border-slate-100/50"
+                                                : "text-slate-400 hover:text-slate-700 hover:bg-slate-50/80"
+                                        )}
+                                    >
+                                        <child.icon className="w-4 h-4" />
+                                        {child.name}
+                                    </Link>
                                 )}
-                            >
-                                <child.icon className="w-4 h-4" />
-                                {child.name}
-                            </Link>
+                            </div>
                         ))}
                     </div>
 
@@ -270,23 +363,42 @@ export default function Authenticated({
             {/* Mobile Sidebar Overlay */}
             {mobileMenuOpen && (
                 <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] lg:hidden animate-in fade-in duration-300">
-                    <div className="absolute inset-y-0 left-0 w-72 bg-white p-8 animate-in slide-in-from-left duration-300">
+                    <div className="absolute inset-y-0 left-0 w-72 bg-white p-8 animate-in slide-in-from-left duration-300 shadow-2xl">
                         <div className="flex justify-between items-center mb-12">
                             <ApplicationLogo className="w-10 h-10" />
-                            <button onClick={() => setMobileMenuOpen(false)}><X className="w-6 h-6" /></button>
+                            <button onClick={() => setMobileMenuOpen(false)} className="p-2 -mr-2"><X className="w-6 h-6" /></button>
                         </div>
                         <nav className="space-y-4">
                             {navigation.map(item => (
-                                <Link
-                                    key={item.name}
-                                    href={item.href}
-                                    className={cn(
-                                        "flex items-center gap-4 px-6 py-4 rounded-2xl text-sm font-black uppercase tracking-widest transition-all",
-                                        item.active ? "bg-slate-900 text-white" : "text-slate-400 hover:bg-slate-50"
+                                <div key={item.name} className="space-y-2">
+                                    <Link
+                                        href={item.href}
+                                        className={cn(
+                                            "flex items-center gap-4 px-6 py-4 rounded-2xl text-sm font-black uppercase tracking-widest transition-all",
+                                            item.active ? "bg-slate-900 text-white shadow-lg" : "text-slate-400 hover:bg-slate-50"
+                                        )}
+                                        onClick={() => !item.children && setMobileMenuOpen(false)}
+                                    >
+                                        <item.icon className="w-5 h-5" /> {item.name}
+                                    </Link>
+                                    {item.active && item.children && (
+                                        <div className="pl-14 space-y-2">
+                                            {item.children.map(child => (
+                                                <Link
+                                                    key={child.name}
+                                                    href={child.href}
+                                                    className={cn(
+                                                        "block py-2 text-xs font-bold uppercase tracking-widest transition-all",
+                                                        child.active ? "text-indigo-600" : "text-slate-400"
+                                                    )}
+                                                    onClick={() => setMobileMenuOpen(false)}
+                                                >
+                                                    {child.name}
+                                                </Link>
+                                            ))}
+                                        </div>
                                     )}
-                                >
-                                    <item.icon className="w-5 h-5" /> {item.name}
-                                </Link>
+                                </div>
                             ))}
                         </nav>
                     </div>
@@ -400,7 +512,7 @@ export default function Authenticated({
                     <div className="fixed bottom-10 right-10 flex flex-col items-end gap-3 z-50">
                         <div className="bg-white border border-slate-100 p-4 rounded-2xl shadow-2xl shadow-slate-200 invisible opacity-0 translate-y-2 translate-x-1 transition-all group-hover:visible group-hover:opacity-100 group-hover:translate-y-0 group-hover:translate-x-0">
                             <p className="text-[10px] font-black text-slate-400 uppercase mb-2">Need some help?</p>
-                            <Link href="#" className="text-xs font-black text-indigo-600 underline">Drop us a word</Link>
+                            <Link href="#" className="text-xs font-black text-indigo-600 underline" onClick={(e) => e.preventDefault()}>Drop us a word</Link>
                         </div>
                     </div>
                 </main>

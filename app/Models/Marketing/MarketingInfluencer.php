@@ -3,7 +3,7 @@
 namespace App\Models\Marketing;
 
 use App\Models\Clinic;
-use App\Models\Lead;
+use App\Modules\Leads\Models\Lead;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

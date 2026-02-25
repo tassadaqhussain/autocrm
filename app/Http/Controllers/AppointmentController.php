@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Appointment;
 use App\Models\User;
-use App\Models\Lead;
+use App\Modules\Leads\Models\Lead;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 

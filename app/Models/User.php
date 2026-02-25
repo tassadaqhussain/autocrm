@@ -65,6 +65,11 @@ class User extends Authenticatable
         return $this->belongsTo(Clinic::class);
     }
 
+    public function leads()
+    {
+        return $this->hasMany(\App\Modules\Leads\Models\Lead::class, 'counselor_id');
+    }
+
     public function employee()
     {
         return $this->hasOne(\App\Models\HR\Employee::class);

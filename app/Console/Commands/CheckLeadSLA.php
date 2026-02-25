@@ -16,7 +16,7 @@ class CheckLeadSLA extends Command
 
     public function handle()
     {
-        $overdueLeads = \App\Models\Lead::where('status', 'New')
+        $overdueLeads = \App\Modules\Leads\Models\Lead::where('status', 'New')
             ->where('created_at', '<=', now()->subHour())
             ->whereDoesntHave('alerts', function($q) {
                 $q->where('type', 'SLA Breach');

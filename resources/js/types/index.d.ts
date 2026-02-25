@@ -6,6 +6,8 @@ export interface User {
     role?: string;
     role_id?: number;
     all_permissions?: string[];
+    /** Enabled module names for tenant's service type; null = no service type = all modules visible */
+    enabled_modules?: string[] | null;
     clinic?: {
         id: number;
         name: string;
