@@ -25,15 +25,15 @@ Route::get('/invitation/{token}', function (string $token) {
 })->name('invitation.show');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', function() {
+    Route::get('/dashboard', function () {
         if (auth()->user()->role !== 'Admin') {
             return redirect()->route('hr.attendance.index');
         }
         return (new DashboardController())->index();
     })->name('dashboard');
-    
+
     // Admin & Marketing Module
-    Route::middleware(['role:Admin,Media Manager'])->prefix('marketing')->name('marketing.')->group(function() {
+    Route::middleware(['role:Admin,Media Manager'])->prefix('marketing')->name('marketing.')->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\Marketing\DashboardController::class, 'index'])->name('dashboard');
         Route::resource('campaigns', \App\Http\Controllers\Marketing\CampaignController::class);
         Route::get('/campaigns/builder', [\App\Http\Controllers\Marketing\CampaignController::class, 'builder'])->name('campaigns.builder');
@@ -49,30 +49,30 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // CRM Leads, Deals & Clients (module-based; module middleware enforces service-type access)
     Route::middleware(['role:Admin,Counselor,Media Manager'])->group(function () {
-        Route::middleware(['module:leads'])->group(fn () => require base_path('app/Modules/Leads/Routes/web.php'));
-        Route::middleware(['module:deals'])->group(fn () => require base_path('app/Modules/Deals/Routes/web.php'));
-        Route::middleware(['module:clients'])->group(fn () => require base_path('app/Modules/Clients/Routes/web.php'));
+        Route::middleware(['module:leads'])->group(fn() => require base_path('app/Modules/Leads/Routes/web.php'));
+        Route::middleware(['module:deals'])->group(fn() => require base_path('app/Modules/Deals/Routes/web.php'));
+        Route::middleware(['module:clients'])->group(fn() => require base_path('app/Modules/Clients/Routes/web.php'));
     });
 
     // Medical & Scheduling
-    Route::middleware(['role:Admin,Doctor,Counselor'])->group(function() {
+    Route::middleware(['role:Admin,Doctor,Counselor'])->group(function () {
         Route::resource('appointments', \App\Http\Controllers\AppointmentController::class);
     });
-    
+
     // Core System Settings
-    Route::middleware(['role:Admin'])->prefix('settings')->name('settings.')->group(function() {
+    Route::middleware(['role:Admin'])->prefix('settings')->name('settings.')->group(function () {
         Route::get('/', [\App\Http\Controllers\SystemSettingsController::class, 'index'])->name('index');
         Route::get('/roles', [\App\Http\Controllers\RolePermissionController::class, 'index'])->name('roles.index');
         Route::patch('/roles/{role}', [\App\Http\Controllers\RolePermissionController::class, 'update'])->name('roles.update');
     });
-    
+
     // Core HR Management - Highly Sensitive (Admin Only)
     Route::prefix('hr')->name('hr.')->middleware(['role:Admin'])->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\HR\DashboardController::class, 'index'])->name('dashboard');
-        
+
         Route::get('/clinic-profile', [\App\Http\Controllers\ClinicProfileController::class, 'show'])->name('clinic.profile');
         Route::patch('/clinic-profile', [\App\Http\Controllers\ClinicProfileController::class, 'update'])->name('clinic.update');
-        
+
         Route::post('/employees/invite', [\App\Http\Controllers\HR\EmployeeController::class, 'invite'])->name('employees.invite');
         Route::post('/employees/invite-link', [\App\Http\Controllers\HR\EmployeeController::class, 'createInviteLink'])->name('employees.invite-link');
         Route::resource('employees', \App\Http\Controllers\HR\EmployeeController::class);
@@ -81,23 +81,28 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('shifts', \App\Http\Controllers\HR\ShiftController::class);
         Route::post('/departments/quick-add', [\App\Http\Controllers\HR\DepartmentController::class, 'quickStore'])->name('departments.quick-store');
         Route::post('/designations/quick-add', [\App\Http\Controllers\HR\DepartmentController::class, 'quickStoreDesignation'])->name('designations.quick-store');
-        
+
         Route::resource('leave', \App\Http\Controllers\HR\LeaveController::class);
+        Route::post('/leave-types/quick-add', [\App\Http\Controllers\HR\LeaveController::class, 'quickStoreType'])->name('leave-types.quick-store');
         Route::patch('/leave/{leave}/approve', [\App\Http\Controllers\HR\LeaveController::class, 'approve'])->name('leave.approve');
         Route::patch('/leave/{leave}/reject', [\App\Http\Controllers\HR\LeaveController::class, 'reject'])->name('leave.reject');
-        
+
         Route::resource('holidays', \App\Http\Controllers\HR\HolidayController::class);
         Route::resource('appreciations', \App\Http\Controllers\HR\AppreciationController::class);
-        
+        Route::post('/awards/quick-add', [\App\Http\Controllers\HR\AppreciationController::class, 'quickStoreAward'])->name('awards.quick-store');
+
         // Roster
         Route::get('/roster', [\App\Http\Controllers\HR\RosterController::class, 'index'])->name('roster.index');
         Route::post('/roster', [\App\Http\Controllers\HR\RosterController::class, 'store'])->name('roster.store');
-        
+
         Route::get('/payroll', [\App\Http\Controllers\HR\PayrollController::class, 'index'])->name('payroll.index');
         Route::get('/performance', [\App\Http\Controllers\HR\PerformanceController::class, 'index'])->name('performance.index');
         Route::post('/performance', [\App\Http\Controllers\HR\PerformanceController::class, 'store'])->name('performance.store');
         Route::patch('/performance/{review}', [\App\Http\Controllers\HR\PerformanceController::class, 'update'])->name('performance.update');
         Route::delete('/performance/{review}', [\App\Http\Controllers\HR\PerformanceController::class, 'destroy'])->name('performance.destroy');
+
+        // Work Module Group
+        require base_path('app/Modules/Work/Routes/web.php');
     });
 
     // Self Service (Attendance) - Open to All Auth Employees
@@ -115,4 +120,4 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

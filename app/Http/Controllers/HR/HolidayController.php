@@ -7,15 +7,20 @@ use Illuminate\Http\Request;
 
 class HolidayController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $clinic_id = auth()->user()->clinic_id;
-        $holidays = \App\Models\HR\Holiday::where('clinic_id', $clinic_id)
-            ->orderBy('date', 'asc')
-            ->get();
+        $query = \App\Models\HR\Holiday::where('clinic_id', $clinic_id);
+
+        if ($request->filled('search')) {
+            $query->where('name', 'like', "%{$request->search}%");
+        }
+
+        $holidays = $query->orderBy('date', 'asc')->get();
 
         return \Inertia\Inertia::render('HR/Holiday/Index', [
-            'holidays' => $holidays
+            'holidays' => $holidays,
+            'filters' => $request->only(['search'])
         ]);
     }
 

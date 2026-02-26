@@ -83,11 +83,50 @@ export default function Index({ employees, logs, holidays, daysInMonth, month, y
     };
 
     const openMark = (empId?: number, date?: string) => {
-        reset();
-        if (empId) setData(d => ({ ...d, employee_id: String(empId) }));
-        if (date) setData(d => ({ ...d, date }));
+        if (empId) {
+            setData(d => ({
+                ...d,
+                employee_id: String(empId),
+                date: date || d.date
+            }));
+        } else if (date) {
+            setData('date', date);
+        }
         setIsOpen(true);
     };
+
+    // Auto-populate form when employee or date changes
+    useEffect(() => {
+        if (!isOpen || !data.employee_id || !data.date) return;
+
+        const log = getLog(parseInt(data.employee_id), data.date);
+        if (log) {
+            setData(d => ({
+                ...d,
+                check_in: log.clock_in_at ? log.clock_in_at.substring(11, 16) : (log.check_in ? String(log.check_in).substring(11, 16) : ''),
+                check_out: log.clock_out_at ? log.clock_out_at.substring(11, 16) : (log.check_out ? String(log.check_out).substring(11, 16) : ''),
+                clock_in_ip: log.clock_in_ip || '127.0.0.1',
+                clock_out_ip: log.clock_out_ip || '127.0.0.1',
+                is_late: !!log.is_late,
+                is_half_day: !!log.is_half_day,
+                location: log.location || 'Worksuite',
+                working_from: log.working_from || 'Office',
+            }));
+        } else {
+            // Keep employee_id and date, but reset other fields
+            setData(d => ({
+                ...d,
+                check_in: '',
+                check_out: '',
+                clock_in_ip: '127.0.0.1',
+                clock_out_ip: '127.0.0.1',
+                is_late: false,
+                is_half_day: false,
+                location: 'Worksuite',
+                working_from: 'Office',
+            }));
+        }
+    }, [data.employee_id, data.date, isOpen]);
 
     const submitMark = (e: React.FormEvent) => {
         e.preventDefault();

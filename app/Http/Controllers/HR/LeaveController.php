@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Storage;
 
 class LeaveController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $clinic_id = auth()->user()->clinic_id;
 
@@ -22,17 +22,33 @@ class LeaveController extends Controller
 
         $leaveTypes = LeaveType::where('clinic_id', $clinic_id)->get();
 
-        $leaves = Leave::with(['employee.user', 'leaveType'])
-            ->whereHas('employee', function($q) use ($clinic_id) {
+        $query = Leave::with(['employee.user', 'leaveType'])
+            ->whereHas('employee', function ($q) use ($clinic_id) {
                 $q->where('clinic_id', $clinic_id);
-            })
-            ->latest()
-            ->get();
+            });
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->whereHas('employee.user', function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('type')) {
+            $query->where('leave_type_id', $request->type);
+        }
+
+        $leaves = $query->latest()->get();
 
         return Inertia::render('HR/Leave/Index', [
             'leaves' => $leaves,
             'employees' => $employees,
-            'leaveTypes' => $leaveTypes
+            'leaveTypes' => $leaveTypes,
+            'filters' => $request->only(['search', 'status', 'type'])
         ]);
     }
 
@@ -76,6 +92,8 @@ class LeaveController extends Controller
                 Storage::disk('public')->delete($leave->attachment);
             }
             $validated['attachment'] = $request->file('attachment')->store('leaves', 'public');
+        } else {
+            unset($validated['attachment']);
         }
 
         $leave->update($validated);
@@ -109,5 +127,22 @@ class LeaveController extends Controller
             'approved_by' => auth()->id()
         ]);
         return back()->with('success', 'Leave rejected.');
+    }
+
+    public function quickStoreType(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            // Note: Migration doesn't have these yet, so we only save name for now
+            // or we could update the migration.
+        ]);
+
+        $type = LeaveType::create([
+            'name' => $validated['name'],
+            'clinic_id' => auth()->user()->clinic_id,
+            'days_per_year' => 0 // Default
+        ]);
+
+        return back()->with('success', 'Leave type created.');
     }
 }

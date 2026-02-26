@@ -54,10 +54,10 @@ export default function Drawer({
                                     <button
                                         type="button"
                                         onClick={onClose}
-                                        className="absolute left-0 top-0 z-10 w-12 h-12 -translate-x-[90%] flex items-center justify-center rounded-full bg-[#4358E4] text-white hover:bg-[#3649c7] active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-white"
+                                        className="absolute -left-[48px] top-[17px] z-10 py-[10px] px-[18px] flex items-center justify-center rounded-l-[22px] rounded-r-none bg-[#1d82f5] text-white hover:bg-[#1669c1] active:opacity-90 transition-all duration-200 focus:outline-none shadow-md"
                                         aria-label="Close"
                                     >
-                                        <X className="w-5 h-5" strokeWidth={2.5} />
+                                        <X className="w-3.5 h-3.5" strokeWidth={3.5} />
                                     </button>
 
                                     <div className="flex h-full flex-col bg-white">

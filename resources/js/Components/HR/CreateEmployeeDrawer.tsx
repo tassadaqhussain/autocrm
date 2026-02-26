@@ -14,7 +14,10 @@ import {
     HelpCircle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import RichTextEditor from '@/Components/RichTextEditor';
 import axios from 'axios';
+import CreateDesignationModal from './CreateDesignationModal';
+import CreateDepartmentModal from './CreateDepartmentModal';
 
 interface Dept {
     id: number;
@@ -63,9 +66,7 @@ export default function CreateEmployeeDrawer({
     const [depts, setDepts] = useState<Dept[]>(initialDepts);
     const [desigs, setDesigs] = useState<Desig[]>(initialDesigs);
     const [isAddingDept, setIsAddingDept] = useState(false);
-    const [newDeptName, setNewDeptName] = useState('');
     const [isAddingDesig, setIsAddingDesig] = useState(false);
-    const [newDesigTitle, setNewDesigTitle] = useState('');
     const [showPassword, setShowPassword] = useState(false);
 
     useEffect(() => {
@@ -134,33 +135,14 @@ export default function CreateEmployeeDrawer({
         });
     };
 
-    const handleQuickAddDept = async () => {
-        if (!newDeptName.trim()) return;
-        try {
-            const res = await axios.post(route('hr.departments.quick-store'), { name: newDeptName.trim() });
-            setDepts((prev) => [...prev, res.data]);
-            setData('department_id', String(res.data.id));
-            setNewDeptName('');
-            setIsAddingDept(false);
-        } catch (err) {
-            console.error(err);
-        }
+    const handleQuickAddDeptSuccess = (newDept: Dept) => {
+        setDepts((prev) => [...prev, newDept]);
+        setData('department_id', String(newDept.id));
     };
 
-    const handleQuickAddDesig = async () => {
-        if (!newDesigTitle.trim() || !data.department_id) return;
-        try {
-            const res = await axios.post(route('hr.designations.quick-store'), {
-                title: newDesigTitle.trim(),
-                department_id: data.department_id,
-            });
-            setDesigs((prev) => [...prev, res.data]);
-            setData('designation_id', String(res.data.id));
-            setNewDesigTitle('');
-            setIsAddingDesig(false);
-        } catch (err) {
-            console.error(err);
-        }
+    const handleQuickAddDesigSuccess = (newDesig: Desig) => {
+        setDesigs((prev) => [...prev, newDesig]);
+        setData('designation_id', String(newDesig.id));
     };
 
     const setPasswordGenerated = () => setData('password', generatePassword());
@@ -308,66 +290,54 @@ export default function CreateEmployeeDrawer({
                             <InputError message={errors.password} />
                         </div>
                         <div className="space-y-1.5">
-                            <InputLabel className="text-[13px] text-slate-600">Designation <span className="text-rose-500">*</span></InputLabel>
+                            <InputLabel className="text-[13px] text-slate-600 font-medium flex items-center gap-1">
+                                Designation <span className="text-rose-500">*</span>
+                                <HelpCircle className="w-3.5 h-3.5 text-slate-400" />
+                            </InputLabel>
                             <div className="flex gap-2">
-                                {isAddingDesig ? (
-                                    <>
-                                        <input
-                                            value={newDesigTitle}
-                                            onChange={(e) => setNewDesigTitle(e.target.value)}
-                                            placeholder="Title"
-                                            className="flex-1 h-11 px-3 border border-slate-200 rounded-lg text-[13px]"
-                                            onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleQuickAddDesig())}
-                                        />
-                                        <button type="button" onClick={handleQuickAddDesig} className="px-3 bg-indigo-600 text-white rounded-lg text-[13px] font-medium">Add</button>
-                                    </>
-                                ) : (
-                                    <>
-                                        <select
-                                            value={data.designation_id}
-                                            onChange={(e) => setData('designation_id', e.target.value)}
-                                            className="flex-1 h-11 px-3 bg-white border border-slate-200 rounded-lg text-[13px] focus:ring-1 focus:ring-indigo-500"
-                                        >
-                                            <option value="">--</option>
-                                            {desigs.filter((d) => String(d.department_id) === data.department_id).map((d) => (
-                                                <option key={d.id} value={d.id}>{d.title}</option>
-                                            ))}
-                                        </select>
-                                        <button type="button" onClick={() => setIsAddingDesig(true)} className="px-3 border border-slate-200 rounded-lg text-[13px] font-medium text-slate-600 hover:bg-slate-50">Add</button>
-                                    </>
-                                )}
+                                <select
+                                    value={data.designation_id}
+                                    onChange={(e) => setData('designation_id', e.target.value)}
+                                    className="flex-1 h-11 px-3 bg-white border border-slate-200 rounded-lg text-[13px] font-medium focus:ring-1 focus:ring-indigo-500 hover:border-slate-300 transition-all shadow-sm"
+                                >
+                                    <option value="">--</option>
+                                    {desigs.filter((d) => String(d.department_id) === data.department_id).map((d) => (
+                                        <option key={d.id} value={d.id}>{d.title}</option>
+                                    ))}
+                                </select>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsAddingDesig(true)}
+                                    className="px-4 border border-slate-200 rounded-lg text-[13px] font-bold text-slate-500 hover:bg-slate-50 transition-colors border-dashed active:scale-95"
+                                >
+                                    Add
+                                </button>
                             </div>
                             <InputError message={errors.designation_id} />
                         </div>
                         <div className="space-y-1.5">
-                            <InputLabel className="text-[13px] text-slate-600">Department <span className="text-rose-500">*</span></InputLabel>
+                            <InputLabel className="text-[13px] text-slate-600 font-medium flex items-center gap-1">
+                                Department <span className="text-rose-500">*</span>
+                                <HelpCircle className="w-3.5 h-3.5 text-slate-400" />
+                            </InputLabel>
                             <div className="flex gap-2">
-                                {isAddingDept ? (
-                                    <>
-                                        <input
-                                            value={newDeptName}
-                                            onChange={(e) => setNewDeptName(e.target.value)}
-                                            placeholder="Department name"
-                                            className="flex-1 h-11 px-3 border border-slate-200 rounded-lg text-[13px]"
-                                            onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleQuickAddDept())}
-                                        />
-                                        <button type="button" onClick={handleQuickAddDept} className="px-3 bg-indigo-600 text-white rounded-lg text-[13px] font-medium">Add</button>
-                                    </>
-                                ) : (
-                                    <>
-                                        <select
-                                            value={data.department_id}
-                                            onChange={(e) => setData('department_id', e.target.value)}
-                                            className="flex-1 h-11 px-3 bg-white border border-slate-200 rounded-lg text-[13px] focus:ring-1 focus:ring-indigo-500"
-                                        >
-                                            <option value="">--</option>
-                                            {depts.map((d) => (
-                                                <option key={d.id} value={d.id}>{d.name}</option>
-                                            ))}
-                                        </select>
-                                        <button type="button" onClick={() => setIsAddingDept(true)} className="px-3 border border-slate-200 rounded-lg text-[13px] font-medium text-slate-600 hover:bg-slate-50">Add</button>
-                                    </>
-                                )}
+                                <select
+                                    value={data.department_id}
+                                    onChange={(e) => setData('department_id', e.target.value)}
+                                    className="flex-1 h-11 px-3 bg-white border border-slate-200 rounded-lg text-[13px] font-medium focus:ring-1 focus:ring-indigo-500 hover:border-slate-300 transition-all shadow-sm"
+                                >
+                                    <option value="">--</option>
+                                    {depts.map((d) => (
+                                        <option key={d.id} value={d.id}>{d.name}</option>
+                                    ))}
+                                </select>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsAddingDept(true)}
+                                    className="px-4 border border-slate-200 rounded-lg text-[13px] font-bold text-slate-500 hover:bg-slate-50 transition-colors border-dashed active:scale-95"
+                                >
+                                    Add
+                                </button>
                             </div>
                             <InputError message={errors.department_id} />
                         </div>
@@ -482,13 +452,14 @@ export default function CreateEmployeeDrawer({
                                 className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-[13px] focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
                             />
                         </div>
+
+
                         <div className="space-y-1.5 sm:col-span-2 lg:col-span-3">
                             <InputLabel className="text-[13px] text-slate-600">About</InputLabel>
-                            <textarea
+                            <RichTextEditor
                                 value={data.about}
-                                onChange={(e) => setData('about', e.target.value)}
-                                rows={2}
-                                className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-[13px] focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                                onChange={(val) => setData('about', val)}
+                                placeholder="Describe the employee's background, role, or unique skills..."
                             />
                         </div>
                     </div>
@@ -666,6 +637,18 @@ export default function CreateEmployeeDrawer({
                     </div>
                 </div>
             </form>
+            <CreateDesignationModal
+                isOpen={isAddingDesig}
+                onClose={() => setIsAddingDesig(false)}
+                departments={depts}
+                onSuccess={handleQuickAddDesigSuccess}
+                defaultDepartmentId={data.department_id}
+            />
+            <CreateDepartmentModal
+                isOpen={isAddingDept}
+                onClose={() => setIsAddingDept(false)}
+                onSuccess={handleQuickAddDeptSuccess}
+            />
         </Drawer>
     );
 }

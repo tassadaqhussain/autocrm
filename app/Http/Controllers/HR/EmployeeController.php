@@ -16,13 +16,37 @@ use Illuminate\Support\Facades\DB;
 
 class EmployeeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $clinicId = auth()->user()->clinic_id;
 
-        $employees = Employee::with(['user', 'department', 'designation', 'shift'])
-            ->where('clinic_id', $clinicId)
-            ->get();
+        $query = Employee::with(['user', 'department', 'designation', 'shift'])
+            ->where('clinic_id', $clinicId);
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('employee_id', 'like', "%{$search}%")
+                    ->orWhereHas('user', function ($uq) use ($search) {
+                        $uq->where('name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('department')) {
+            $query->where('department_id', $request->department);
+        }
+
+        if ($request->filled('designation')) {
+            $query->where('designation_id', $request->designation);
+        }
+
+        $employees = $query->get();
 
         $departments = Department::where('clinic_id', $clinicId)->get();
         $designations = Designation::whereIn('department_id', $departments->pluck('id'))->get();
@@ -33,6 +57,7 @@ class EmployeeController extends Controller
             'departments' => $departments,
             'designations' => $designations,
             'shifts' => $shifts,
+            'filters' => $request->only(['search', 'status', 'department', 'designation'])
         ]);
     }
 

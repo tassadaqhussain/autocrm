@@ -5,6 +5,7 @@ import CreateEmployeeDrawer from '@/Components/HR/CreateEmployeeDrawer';
 import ShowEmployeeDrawer from '@/Components/HR/ShowEmployeeDrawer';
 import EditEmployeeDrawer from '@/Components/HR/EditEmployeeDrawer';
 import InviteEmployeeDrawer from '@/Components/HR/InviteEmployeeDrawer';
+import EmployeeFilterDrawer from '@/Components/HR/EmployeeFilterDrawer';
 import type { EmployeeDrawerEmployee } from '@/Components/HR/EmployeeDrawerTypes';
 import { Head, router } from '@inertiajs/react';
 import {
@@ -26,13 +27,25 @@ interface Props {
     departments: { id: number; name: string }[];
     designations: { id: number; title: string; department_id: number }[];
     shifts: { id: number; name: string }[];
+    filters: { search?: string; status?: string; department?: string; designation?: string };
 }
 
-export default function Index({ employees, departments, designations, shifts }: Props) {
+export default function Index({ employees, departments, designations, shifts, filters }: Props) {
     const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
     const [isInviteDrawerOpen, setIsInviteDrawerOpen] = useState(false);
+    const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
     const [viewDrawerEmployee, setViewDrawerEmployee] = useState<EmployeeDrawerEmployee | null>(null);
     const [editDrawerEmployee, setEditDrawerEmployee] = useState<EmployeeDrawerEmployee | null>(null);
+
+    const handleApplyFilters = (newFilters: any) => {
+        router.get(route('hr.employees.index'), {
+            ...newFilters,
+            search: newFilters.search || undefined,
+            status: newFilters.status !== 'All' ? newFilters.status : undefined,
+            department: newFilters.department !== 'All' ? newFilters.department : undefined,
+            designation: newFilters.designation !== 'All' ? newFilters.designation : undefined,
+        }, { preserveState: true, preserveScroll: true });
+    };
 
     const columns: DataTableColumn<EmployeeDrawerEmployee>[] = useMemo(
         () => [
@@ -133,6 +146,7 @@ export default function Index({ employees, departments, designations, shifts }: 
                     <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">{employees.length} personnel</span>
                     <button
                         type="button"
+                        onClick={() => setIsFilterDrawerOpen(true)}
                         className="inline-flex items-center gap-2 h-9 px-3.5 rounded-lg border border-slate-200 bg-white text-slate-600 text-xs font-medium hover:bg-slate-50 transition-colors"
                     >
                         <Filter className="w-3.5 h-3.5" />
@@ -207,6 +221,17 @@ export default function Index({ employees, departments, designations, shifts }: 
                 departments={departments}
                 designations={designations}
                 shifts={shifts}
+            />
+            <EmployeeFilterDrawer
+                isOpen={isFilterDrawerOpen}
+                onClose={() => setIsFilterDrawerOpen(false)}
+                currentSearch={filters?.search || ''}
+                currentStatus={filters?.status || 'All'}
+                currentDepartment={filters?.department || 'All'}
+                currentDesignation={filters?.designation || 'All'}
+                departments={departments}
+                designations={designations}
+                onApply={handleApplyFilters}
             />
         </AuthenticatedLayout>
     );

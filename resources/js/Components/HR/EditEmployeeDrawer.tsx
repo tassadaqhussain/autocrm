@@ -6,6 +6,8 @@ import InputError from '@/Components/InputError';
 import { Save, User, Mail, Eye, EyeOff } from 'lucide-react';
 import axios from 'axios';
 import type { EmployeeDrawerEmployee } from './EmployeeDrawerTypes';
+import CreateDesignationModal from './CreateDesignationModal';
+import CreateDepartmentModal from './CreateDepartmentModal';
 
 interface Dept {
     id: number;
@@ -59,9 +61,7 @@ export default function EditEmployeeDrawer({
     const [depts, setDepts] = useState<Dept[]>(initialDepts);
     const [desigs, setDesigs] = useState<Desig[]>(initialDesigs);
     const [isAddingDept, setIsAddingDept] = useState(false);
-    const [newDeptName, setNewDeptName] = useState('');
     const [isAddingDesig, setIsAddingDesig] = useState(false);
-    const [newDesigTitle, setNewDesigTitle] = useState('');
     const [showPassword, setShowPassword] = useState(false);
 
     useEffect(() => {
@@ -95,33 +95,14 @@ export default function EditEmployeeDrawer({
         });
     };
 
-    const handleQuickAddDept = async () => {
-        if (!newDeptName.trim()) return;
-        try {
-            const res = await axios.post(route('hr.departments.quick-store'), { name: newDeptName.trim() });
-            setDepts((prev) => [...prev, res.data]);
-            setData('department_id', String(res.data.id));
-            setNewDeptName('');
-            setIsAddingDept(false);
-        } catch (err) {
-            console.error(err);
-        }
+    const handleQuickAddDeptSuccess = (newDept: Dept) => {
+        setDepts((prev) => [...prev, newDept]);
+        setData('department_id', String(newDept.id));
     };
 
-    const handleQuickAddDesig = async () => {
-        if (!newDesigTitle.trim() || !data.department_id) return;
-        try {
-            const res = await axios.post(route('hr.designations.quick-store'), {
-                title: newDesigTitle.trim(),
-                department_id: data.department_id,
-            });
-            setDesigs((prev) => [...prev, res.data]);
-            setData('designation_id', String(res.data.id));
-            setNewDesigTitle('');
-            setIsAddingDesig(false);
-        } catch (err) {
-            console.error(err);
-        }
+    const handleQuickAddDesigSuccess = (newDesig: Desig) => {
+        setDesigs((prev) => [...prev, newDesig]);
+        setData('designation_id', String(newDesig.id));
     };
 
     if (!employee) return null;
@@ -212,66 +193,48 @@ export default function EditEmployeeDrawer({
                             </div>
                         </div>
                         <div className="space-y-1.5">
-                            <InputLabel className="text-[13px] text-slate-600">Designation <span className="text-rose-500">*</span></InputLabel>
+                            <InputLabel className="text-[13px] text-slate-600 font-medium">Designation <span className="text-rose-500">*</span></InputLabel>
                             <div className="flex gap-2">
-                                {isAddingDesig ? (
-                                    <>
-                                        <input
-                                            value={newDesigTitle}
-                                            onChange={(e) => setNewDesigTitle(e.target.value)}
-                                            placeholder="Title"
-                                            className="flex-1 h-11 px-3 border border-slate-200 rounded-lg text-[13px]"
-                                            onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleQuickAddDesig())}
-                                        />
-                                        <button type="button" onClick={handleQuickAddDesig} className="px-3 bg-indigo-600 text-white rounded-lg text-[13px] font-medium">Add</button>
-                                    </>
-                                ) : (
-                                    <>
-                                        <select
-                                            value={data.designation_id}
-                                            onChange={(e) => setData('designation_id', e.target.value)}
-                                            className="flex-1 h-11 px-3 bg-white border border-slate-200 rounded-lg text-[13px] focus:ring-1 focus:ring-indigo-500"
-                                        >
-                                            <option value="">--</option>
-                                            {desigs.filter((d) => String(d.department_id) === data.department_id).map((d) => (
-                                                <option key={d.id} value={d.id}>{d.title}</option>
-                                            ))}
-                                        </select>
-                                        <button type="button" onClick={() => setIsAddingDesig(true)} className="px-3 border border-slate-200 rounded-lg text-[13px] font-medium text-slate-600 hover:bg-slate-50">Add</button>
-                                    </>
-                                )}
+                                <select
+                                    value={data.designation_id}
+                                    onChange={(e) => setData('designation_id', e.target.value)}
+                                    className="flex-1 h-11 px-3 bg-white border border-slate-200 rounded-lg text-[13px] font-medium focus:ring-1 focus:ring-indigo-500 hover:border-slate-300 transition-all shadow-sm"
+                                >
+                                    <option value="">--</option>
+                                    {desigs.filter((d) => String(d.department_id) === data.department_id).map((d) => (
+                                        <option key={d.id} value={d.id}>{d.title}</option>
+                                    ))}
+                                </select>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsAddingDesig(true)}
+                                    className="px-4 border border-slate-200 rounded-lg text-[13px] font-bold text-slate-500 hover:bg-slate-50 transition-colors border-dashed active:scale-95"
+                                >
+                                    Add
+                                </button>
                             </div>
                             <InputError message={errors.designation_id} />
                         </div>
                         <div className="space-y-1.5">
-                            <InputLabel className="text-[13px] text-slate-600">Department <span className="text-rose-500">*</span></InputLabel>
+                            <InputLabel className="text-[13px] text-slate-600 font-medium">Department <span className="text-rose-500">*</span></InputLabel>
                             <div className="flex gap-2">
-                                {isAddingDept ? (
-                                    <>
-                                        <input
-                                            value={newDeptName}
-                                            onChange={(e) => setNewDeptName(e.target.value)}
-                                            placeholder="Department name"
-                                            className="flex-1 h-11 px-3 border border-slate-200 rounded-lg text-[13px]"
-                                            onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleQuickAddDept())}
-                                        />
-                                        <button type="button" onClick={handleQuickAddDept} className="px-3 bg-indigo-600 text-white rounded-lg text-[13px] font-medium">Add</button>
-                                    </>
-                                ) : (
-                                    <>
-                                        <select
-                                            value={data.department_id}
-                                            onChange={(e) => setData('department_id', e.target.value)}
-                                            className="flex-1 h-11 px-3 bg-white border border-slate-200 rounded-lg text-[13px] focus:ring-1 focus:ring-indigo-500"
-                                        >
-                                            <option value="">--</option>
-                                            {depts.map((d) => (
-                                                <option key={d.id} value={d.id}>{d.name}</option>
-                                            ))}
-                                        </select>
-                                        <button type="button" onClick={() => setIsAddingDept(true)} className="px-3 border border-slate-200 rounded-lg text-[13px] font-medium text-slate-600 hover:bg-slate-50">Add</button>
-                                    </>
-                                )}
+                                <select
+                                    value={data.department_id}
+                                    onChange={(e) => setData('department_id', e.target.value)}
+                                    className="flex-1 h-11 px-3 bg-white border border-slate-200 rounded-lg text-[13px] font-medium focus:ring-1 focus:ring-indigo-500 hover:border-slate-300 transition-all shadow-sm"
+                                >
+                                    <option value="">--</option>
+                                    {depts.map((d) => (
+                                        <option key={d.id} value={d.id}>{d.name}</option>
+                                    ))}
+                                </select>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsAddingDept(true)}
+                                    className="px-4 border border-slate-200 rounded-lg text-[13px] font-bold text-slate-500 hover:bg-slate-50 transition-colors border-dashed active:scale-95"
+                                >
+                                    Add
+                                </button>
                             </div>
                             <InputError message={errors.department_id} />
                         </div>
@@ -341,6 +304,18 @@ export default function EditEmployeeDrawer({
                         </div>
                     </div>
                 </div>
+                <CreateDesignationModal
+                    isOpen={isAddingDesig}
+                    onClose={() => setIsAddingDesig(false)}
+                    departments={depts}
+                    onSuccess={handleQuickAddDesigSuccess}
+                    defaultDepartmentId={data.department_id}
+                />
+                <CreateDepartmentModal
+                    isOpen={isAddingDept}
+                    onClose={() => setIsAddingDept(false)}
+                    onSuccess={handleQuickAddDeptSuccess}
+                />
             </form>
         </Drawer>
     );

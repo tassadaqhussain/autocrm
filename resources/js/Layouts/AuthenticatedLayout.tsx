@@ -252,6 +252,22 @@ export default function Authenticated({
 
                 {/* Icons Rail */}
                 <nav className="flex-1 flex flex-col gap-6">
+                    {/* EMERGENCY WORK MODULE PIN */}
+                    <Link
+                        href={route('projects.index')}
+                        className={cn(
+                            "p-3 rounded-xl transition-all relative group",
+                            route().current('projects.*') || route().current('contracts.*') || route().current('tasks.*') || route().current('timesheets.*')
+                                ? "text-indigo-600 bg-indigo-50/50"
+                                : "text-slate-300 hover:text-slate-600 hover:bg-slate-50"
+                        )}
+                    >
+                        <Briefcase className={cn("w-5 h-5 transition-transform duration-300 group-hover:scale-110", (route().current('projects.*') || route().current('contracts.*') || route().current('tasks.*') || route().current('timesheets.*')) && "stroke-[2.5]")} />
+                        <div className="absolute left-[calc(100%+12px)] px-3 py-1.5 bg-slate-900 text-white text-[9px] font-black uppercase tracking-widest rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-all translate-x-[-10px] group-hover:translate-x-0 whitespace-nowrap z-[100] shadow-xl">
+                            Work
+                        </div>
+                    </Link>
+
                     {navigation.map((item) => (
                         <Link
                             key={item.name}
@@ -286,6 +302,71 @@ export default function Authenticated({
                     </Link>
                 </div>
             </aside>
+
+            {/* Secondary Sidebar (Module Sub-menu) */}
+            {(route().current('projects.*') || route().current('contracts.*') || route().current('tasks.*') || route().current('timesheets.*')) && (
+                <aside className="hidden lg:flex fixed inset-y-0 left-20 w-64 flex-col py-8 z-50 bg-[#F8FAFC] border-r border-slate-100/60 shadow-[4px_0_24px_-10px_rgba(0,0,0,0.02)] animate-in slide-in-from-left-4 duration-500">
+                    <div className="px-8 mb-10">
+                        <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Module</h3>
+                        <p className="text-sm font-black text-slate-900 uppercase tracking-tight">Work</p>
+                    </div>
+
+                    <div className="px-4 space-y-1.5">
+                        <Link
+                            href={route('contracts.index')}
+                            className={cn(
+                                "flex items-center gap-4 px-4 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all",
+                                route().current('contracts.*')
+                                    ? "bg-white text-indigo-600 shadow-sm border border-slate-100/50"
+                                    : "text-slate-400 hover:text-slate-700 hover:bg-slate-50/80"
+                            )}
+                        >
+                            <FileText className="w-4 h-4" /> Contracts
+                        </Link>
+                        <Link
+                            href={route('projects.index')}
+                            className={cn(
+                                "flex items-center gap-4 px-4 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all",
+                                route().current('projects.*')
+                                    ? "bg-white text-indigo-600 shadow-sm border border-slate-100/50"
+                                    : "text-slate-400 hover:text-slate-700 hover:bg-slate-50/80"
+                            )}
+                        >
+                            <Folder className="w-4 h-4" /> Projects
+                        </Link>
+                        <Link
+                            href={route('tasks.index')}
+                            className={cn(
+                                "flex items-center gap-4 px-4 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all",
+                                route().current('tasks.*')
+                                    ? "bg-white text-indigo-600 shadow-sm border border-slate-100/50"
+                                    : "text-slate-400 hover:text-slate-700 hover:bg-slate-50/80"
+                            )}
+                        >
+                            <Command className="w-4 h-4" /> Tasks
+                        </Link>
+                        <Link
+                            href={route('timesheets.index')}
+                            className={cn(
+                                "flex items-center gap-4 px-4 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all",
+                                route().current('timesheets.*')
+                                    ? "bg-white text-indigo-600 shadow-sm border border-slate-100/50"
+                                    : "text-slate-400 hover:text-slate-700 hover:bg-slate-50/80"
+                            )}
+                        >
+                            <Clock className="w-4 h-4" /> Timesheet
+                        </Link>
+                    </div>
+
+                    <div className="mt-auto px-8">
+                        <div className="p-6 bg-white rounded-3xl border border-slate-100 shadow-sm">
+                            <h4 className="text-[10px] font-black text-slate-900 uppercase mb-2">Support</h4>
+                            <p className="text-[9px] text-slate-400 font-bold uppercase leading-relaxed mb-4">Need help with this module?</p>
+                            <button className="w-full py-2 bg-slate-900 text-white text-[9px] font-black uppercase tracking-widest rounded-xl">Docs</button>
+                        </div>
+                    </div>
+                </aside>
+            )}
 
             {/* Secondary Sidebar (Module Sub-menu) */}
             {filteredChildren && filteredChildren.length > 0 && (
