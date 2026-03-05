@@ -10,6 +10,7 @@ use App\Modules\Work\Services\ProjectService;
 use App\Modules\Work\Requests\StoreProjectRequest;
 use App\Modules\Work\DTOs\StoreProjectDTO;
 use App\Modules\Clients\Models\Client;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,6 +19,8 @@ use Inertia\Response;
 
 class ProjectController extends Controller
 {
+    use AuthorizesRequests;
+
     public function __construct(
         protected ProjectService $projectService
     ) {
@@ -25,6 +28,8 @@ class ProjectController extends Controller
 
     public function index(Request $request): Response
     {
+        $this->authorize('viewAny', Project::class);
+
         $projects = $this->projectService->listForIndex();
 
         // Following Pattern: Include client list for creation/filtering
@@ -41,6 +46,8 @@ class ProjectController extends Controller
 
     public function store(StoreProjectRequest $request): RedirectResponse
     {
+        $this->authorize('create', Project::class);
+
         $v = $request->validated();
 
         $dto = new StoreProjectDTO(
@@ -61,6 +68,8 @@ class ProjectController extends Controller
 
     public function update(Request $request, Project $project): RedirectResponse
     {
+        $this->authorize('update', $project);
+
         // For brevity using raw update here, but could use StoreProjectRequest validation
         $this->projectService->update($project, $request->all());
         return back()->with('success', 'Project updated.');
@@ -68,6 +77,8 @@ class ProjectController extends Controller
 
     public function destroy(Project $project): RedirectResponse
     {
+        $this->authorize('delete', $project);
+
         $this->projectService->delete($project);
         return back()->with('success', 'Project deleted.');
     }

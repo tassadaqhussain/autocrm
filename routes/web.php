@@ -54,6 +54,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::middleware(['module:clients'])->group(fn() => require base_path('app/Modules/Clients/Routes/web.php'));
     });
 
+    // Work Module (Contracts, Projects, Tasks, etc.)
+    Route::middleware(['role:Admin'])->group(function () {
+        require base_path('app/Modules/Work/Routes/web.php');
+    });
+
     // Medical & Scheduling
     Route::middleware(['role:Admin,Doctor,Counselor'])->group(function () {
         Route::resource('appointments', \App\Http\Controllers\AppointmentController::class);
@@ -101,8 +106,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('/performance/{review}', [\App\Http\Controllers\HR\PerformanceController::class, 'update'])->name('performance.update');
         Route::delete('/performance/{review}', [\App\Http\Controllers\HR\PerformanceController::class, 'destroy'])->name('performance.destroy');
 
-        // Work Module Group
-        require base_path('app/Modules/Work/Routes/web.php');
+
     });
 
     // Self Service (Attendance) - Open to All Auth Employees

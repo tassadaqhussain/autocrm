@@ -1,9 +1,10 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
-import { Plus, FileText, User, Calendar, CreditCard } from 'lucide-react';
+import { Link, Head } from '@inertiajs/react';
+import { Plus, FileText, User, Calendar, CreditCard, Layers, Download } from 'lucide-react';
 import DataTable, { DataTableColumn } from '@/Components/DataTable';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { cn } from '@/lib/utils';
+import CreateContractDrawer from '@/Components/Work/Contracts/CreateContractDrawer';
 
 interface Contract {
     id: number;
@@ -16,8 +17,21 @@ interface Contract {
     status: string;
 }
 
+interface Client {
+    id: number;
+    name: string;
+}
+
+interface ContractType {
+    id: number;
+    name: string;
+}
+
 interface Props {
     contracts: Contract[];
+    clients: Client[];
+    projects: { id: number; project_name: string }[];
+    contractTypes: ContractType[];
 }
 
 const STATUS_CONFIG: Record<string, string> = {
@@ -26,7 +40,9 @@ const STATUS_CONFIG: Record<string, string> = {
     'Canceled': 'bg-rose-100 text-rose-600',
 };
 
-export default function Index({ contracts }: Props) {
+export default function Index({ contracts, clients, projects, contractTypes }: Props) {
+    const [createDrawerOpen, setCreateDrawerOpen] = useState(false);
+
     const columns: DataTableColumn<Contract>[] = useMemo(() => [
         {
             id: 'contract',
@@ -92,9 +108,17 @@ export default function Index({ contracts }: Props) {
                         </h2>
                         <p className="text-slate-400 text-xs font-bold uppercase tracking-[0.2em]">{contracts.length} Legally Binding Service Agreements</p>
                     </div>
-                    <button className="h-12 px-8 bg-slate-900 text-white rounded-[1.2rem] text-[11px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center gap-3 shadow-2xl shadow-slate-200 active:scale-95 group">
-                        <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform" /> Draft Contract
-                    </button>
+                    <div className="flex items-center gap-3">
+                        <button onClick={() => setCreateDrawerOpen(true)} className="h-10 px-4 bg-[#1d82f5] text-white rounded text-sm font-medium hover:bg-[#1669c1] transition-colors flex items-center gap-2 shadow-sm">
+                            <Plus className="w-4 h-4 flex-shrink-0" /> Create Contract
+                        </button>
+                        <Link href={route('contracts.templates')} className="h-10 px-4 bg-white border border-slate-300 text-slate-700 rounded text-sm font-medium hover:bg-slate-50 transition-colors flex items-center gap-2 shadow-sm">
+                            <Layers className="w-4 h-4 flex-shrink-0" /> Contract Template
+                        </Link>
+                        <button className="h-10 px-4 bg-white border border-slate-300 text-slate-700 rounded text-sm font-medium hover:bg-slate-50 transition-colors flex items-center gap-2 shadow-sm">
+                            <Download className="w-4 h-4 flex-shrink-0" /> Export
+                        </button>
+                    </div>
                 </div>
             }
         >
@@ -108,6 +132,14 @@ export default function Index({ contracts }: Props) {
                     emptyMessage="No legal service agreements found."
                 />
             </div>
+
+            <CreateContractDrawer
+                isOpen={createDrawerOpen}
+                onClose={() => setCreateDrawerOpen(false)}
+                clients={clients}
+                projects={projects}
+                contractTypes={contractTypes}
+            />
         </AuthenticatedLayout>
     );
 }

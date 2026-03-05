@@ -8,19 +8,21 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified'])->prefix('work')->group(function () {
     // Projects
-    Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
-    Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
-    Route::patch('/projects/{project}', [ProjectController::class, 'update'])->name('projects.update');
-    Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
+    Route::resource('projects', ProjectController::class);
 
     // Contracts
-    Route::get('/contracts', [ContractController::class, 'index'])->name('contracts.index');
-    // ... we can add store/update as we build their drawers
+    Route::get('contracts/templates', [ContractController::class, 'templates'])->name('contracts.templates');
+    Route::resource('contracts', ContractController::class);
+
+    // Contract Templates
+    Route::post('contracts/templates', \App\Modules\Work\Controllers\ContractTemplateController::class . '@store')->name('contracts.templates.store');
+
+    // Contract Types
+    Route::post('contract-types', \App\Modules\Work\Controllers\ContractTypeController::class . '@store')->name('contract-types.store');
 
     // Tasks
-    Route::get('/tasks', [TaskController::class, 'index'])->name('tasks.index');
-    // ... we can add store/update as we build their drawers
+    Route::get('tasks', [TaskController::class, 'index'])->name('tasks.index');
 
     // Timesheets
-    Route::get('/timesheets', [TimesheetController::class, 'index'])->name('timesheets.index');
+    Route::get('timesheets', [TimesheetController::class, 'index'])->name('timesheets.index');
 });

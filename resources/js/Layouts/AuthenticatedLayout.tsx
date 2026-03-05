@@ -193,7 +193,7 @@ export default function Authenticated({
             name: 'HR',
             href: route('hr.dashboard'),
             icon: Users,
-            active: route().current('hr.*') && !route().current('hr.clinic.*'),
+            active: route().current('hr.*') && !route().current('hr.clinic.*') && !route().current('hr.shifts.*') && !route().current('projects.*') && !route().current('contracts.*') && !route().current('tasks.*') && !route().current('timesheets.*'),
             permission: 'manage_hr',
             children: [
                 { name: 'Dashboard', href: route('hr.dashboard'), icon: LayoutGrid, permission: 'manage_hr', active: route().current('hr.dashboard') },
@@ -254,15 +254,15 @@ export default function Authenticated({
                 <nav className="flex-1 flex flex-col gap-6">
                     {/* EMERGENCY WORK MODULE PIN */}
                     <Link
-                        href={route('projects.index')}
+                        href={route('hr.projects.index')}
                         className={cn(
                             "p-3 rounded-xl transition-all relative group",
-                            route().current('projects.*') || route().current('contracts.*') || route().current('tasks.*') || route().current('timesheets.*')
+                            route().current('hr.projects.*') || route().current('hr.contracts.*') || route().current('hr.tasks.*') || route().current('hr.timesheets.*')
                                 ? "text-indigo-600 bg-indigo-50/50"
                                 : "text-slate-300 hover:text-slate-600 hover:bg-slate-50"
                         )}
                     >
-                        <Briefcase className={cn("w-5 h-5 transition-transform duration-300 group-hover:scale-110", (route().current('projects.*') || route().current('contracts.*') || route().current('tasks.*') || route().current('timesheets.*')) && "stroke-[2.5]")} />
+                        <Briefcase className={cn("w-5 h-5 transition-transform duration-300 group-hover:scale-110", (route().current('hr.projects.*') || route().current('hr.contracts.*') || route().current('hr.tasks.*') || route().current('hr.timesheets.*')) && "stroke-[2.5]")} />
                         <div className="absolute left-[calc(100%+12px)] px-3 py-1.5 bg-slate-900 text-white text-[9px] font-black uppercase tracking-widest rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-all translate-x-[-10px] group-hover:translate-x-0 whitespace-nowrap z-[100] shadow-xl">
                             Work
                         </div>
@@ -313,10 +313,10 @@ export default function Authenticated({
 
                     <div className="px-4 space-y-1.5">
                         <Link
-                            href={route('contracts.index')}
+                            href={route('hr.contracts.index')}
                             className={cn(
                                 "flex items-center gap-4 px-4 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all",
-                                route().current('contracts.*')
+                                route().current('hr.contracts.*')
                                     ? "bg-white text-indigo-600 shadow-sm border border-slate-100/50"
                                     : "text-slate-400 hover:text-slate-700 hover:bg-slate-50/80"
                             )}
@@ -324,10 +324,10 @@ export default function Authenticated({
                             <FileText className="w-4 h-4" /> Contracts
                         </Link>
                         <Link
-                            href={route('projects.index')}
+                            href={route('hr.projects.index')}
                             className={cn(
                                 "flex items-center gap-4 px-4 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all",
-                                route().current('projects.*')
+                                route().current('hr.projects.*')
                                     ? "bg-white text-indigo-600 shadow-sm border border-slate-100/50"
                                     : "text-slate-400 hover:text-slate-700 hover:bg-slate-50/80"
                             )}
@@ -335,10 +335,10 @@ export default function Authenticated({
                             <Folder className="w-4 h-4" /> Projects
                         </Link>
                         <Link
-                            href={route('tasks.index')}
+                            href={route('hr.tasks.index')}
                             className={cn(
                                 "flex items-center gap-4 px-4 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all",
-                                route().current('tasks.*')
+                                route().current('hr.tasks.*')
                                     ? "bg-white text-indigo-600 shadow-sm border border-slate-100/50"
                                     : "text-slate-400 hover:text-slate-700 hover:bg-slate-50/80"
                             )}
@@ -346,10 +346,10 @@ export default function Authenticated({
                             <Command className="w-4 h-4" /> Tasks
                         </Link>
                         <Link
-                            href={route('timesheets.index')}
+                            href={route('hr.timesheets.index')}
                             className={cn(
                                 "flex items-center gap-4 px-4 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all",
-                                route().current('timesheets.*')
+                                route().current('hr.timesheets.*')
                                     ? "bg-white text-indigo-600 shadow-sm border border-slate-100/50"
                                     : "text-slate-400 hover:text-slate-700 hover:bg-slate-50/80"
                             )}
@@ -489,7 +489,7 @@ export default function Authenticated({
             {/* Main Wrapper */}
             <div className={cn(
                 "flex-1 lg:ml-20 flex flex-col min-w-0 min-h-screen transition-all duration-500",
-                navigation.find(n => n.active && n.children) && "lg:ml-[21rem]"
+                ((navigation.find(n => n.active && n.children)) || (route().current('projects.*') || route().current('contracts.*') || route().current('tasks.*') || route().current('timesheets.*'))) && "lg:ml-[21rem]"
             )}>
                 {/* Global Topbar */}
                 <header className="h-16 shrink-0 flex items-center justify-between px-10 relative z-40 bg-[#F8FAFC]/80 backdrop-blur-xl border-b border-slate-100/50">

@@ -15,12 +15,24 @@ class Contract extends Model
 
     protected $fillable = [
         'clinic_id',
+        'contract_number',
         'client_id',
+        'project_id',
+        'contract_type_id',
         'subject',
         'description',
         'amount',
+        'currency',
         'start_date',
         'end_date',
+        'cell',
+        'office_phone',
+        'city',
+        'state',
+        'country',
+        'postal_code',
+        'alternate_address',
+        'notes',
         'status',
     ];
 

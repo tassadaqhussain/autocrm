@@ -6,7 +6,7 @@ import {
 } from '@tanstack/react-table';
 import { Link } from '@inertiajs/react';
 import { ReactNode } from 'react';
-import { ChevronLeft, ChevronRight, Inbox, ArrowUpRight } from 'lucide-react';
+import { ArrowUpDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface PaginationLink {
@@ -45,8 +45,8 @@ interface DataTableProps<T> {
     className?: string;
 }
 
-const thClass = 'px-6 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100 bg-slate-50/50 backdrop-blur-sm';
-const tdClass = 'px-6 py-5 text-[13px] font-semibold text-slate-600';
+const thClass = 'px-4 py-2.5 text-[13px] font-medium text-slate-600 border-b border-slate-200 bg-white align-middle whitespace-nowrap';
+const tdClass = 'px-4 py-2.5 text-[13px] text-slate-600 border-b border-slate-100 align-middle';
 
 export default function DataTable<T>({
     columns,
@@ -94,12 +94,12 @@ export default function DataTable<T>({
     const rows = table.getRowModel().rows;
 
     return (
-        <div className={cn('bg-white border border-slate-100 rounded-[2.5rem] overflow-hidden shadow-2xl shadow-slate-200/50 ring-1 ring-slate-100 relative', className)}>
-            <div className="overflow-x-auto overflow-y-hidden custom-scrollbar">
-                <table className="w-full text-left border-collapse min-w-[800px]">
+        <div className={cn('bg-white border border-slate-200 rounded flex flex-col', className)}>
+            <div className="overflow-x-auto w-full">
+                <table className="w-full text-left border-collapse">
                     <thead>
                         {headerGroups.map((headerGroup) => (
-                            <tr key={headerGroup.id} className="relative">
+                            <tr key={headerGroup.id}>
                                 {headerGroup.headers.map((header) => {
                                     const meta = header.column.columnDef.meta as { align?: 'left' | 'right' | 'center'; headerClassName?: string } | undefined;
                                     const align = meta?.align ?? 'left';
@@ -113,8 +113,11 @@ export default function DataTable<T>({
                                                 meta?.headerClassName
                                             )}
                                         >
-                                            <div className="flex items-center gap-2">
-                                                <span className="italic">{flexRender(header.column.columnDef.header, header.getContext())}</span>
+                                            <div className={cn("flex items-center gap-1.5", align === 'right' && 'justify-end', align === 'center' && 'justify-center')}>
+                                                <span>{flexRender(header.column.columnDef.header, header.getContext())}</span>
+                                                {header.id !== 'actions' && header.id !== 'checkbox' && (
+                                                    <ArrowUpDown className="w-3 h-3 text-slate-300 ml-1" />
+                                                )}
                                             </div>
                                         </th>
                                     );
@@ -122,22 +125,14 @@ export default function DataTable<T>({
                             </tr>
                         ))}
                     </thead>
-                    <tbody className="divide-y divide-slate-50">
+                    <tbody>
                         {rows.length === 0 ? (
                             <tr>
                                 <td
                                     colSpan={columns.length + (renderActions ? 1 : 0)}
-                                    className="px-6 py-24 text-center"
+                                    className="px-4 py-8 text-center text-sm text-slate-600 border-b border-slate-100"
                                 >
-                                    <div className="flex flex-col items-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                                        <div className="p-5 bg-slate-50 rounded-[2rem] text-slate-300 ring-8 ring-slate-50/50">
-                                            <Inbox className="w-10 h-10" />
-                                        </div>
-                                        <div>
-                                            <p className="text-[14px] font-black text-slate-800 uppercase tracking-widest italic">{emptyMessage}</p>
-                                            <p className="text-[11px] text-slate-400 font-bold uppercase tracking-widest mt-1">Try refining your selection criteria</p>
-                                        </div>
-                                    </div>
+                                    {emptyMessage === 'No architectural records found.' ? 'No data available in table' : emptyMessage}
                                 </td>
                             </tr>
                         ) : (
@@ -171,51 +166,33 @@ export default function DataTable<T>({
                 </table>
             </div>
 
-            {pagination && rows.length > 0 && (
-                <div className="px-10 py-8 border-t border-slate-50 flex flex-col md:flex-row items-center justify-between gap-6 bg-slate-50/30 backdrop-blur-md">
-                    <div className="flex items-center gap-6">
-                        <div className="p-3 bg-white border border-slate-100 rounded-2xl shadow-sm text-indigo-600">
-                            <ArrowUpRight className="w-4 h-4" />
-                        </div>
-                        <div>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">Data Perspective</p>
-                            <p className="text-[13px] font-bold text-slate-900 mt-0.5">
-                                Showing <span className="text-indigo-600">{pagination.from ?? 0}</span>–<span className="text-indigo-600">{pagination.to ?? 0}</span> of {pagination.total} records
-                            </p>
-                        </div>
-                    </div>
+            {/* Pagination & Footer */}
+            <div className="px-4 py-3 bg-white flex flex-col md:flex-row items-center justify-between gap-4 text-[13px] text-slate-600 border-t border-slate-200">
+                <div className="flex items-center gap-2">
+                    <span>Show</span>
+                    <select className="border border-slate-300 rounded px-2 py-1 text-sm focus:ring-0 focus:border-indigo-500 bg-white">
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                    <span>entries</span>
+                </div>
 
-                    <div className="flex items-center gap-2">
-                        {pagination.links.map((link, i) => {
-                            const isPrev = i === 0;
-                            const isNext = i === pagination.links.length - 1;
-                            const label = link.label.replace('&laquo;', '').replace('&raquo;', '').trim();
-
-                            return (
-                                <span key={i}>
-                                    {link.url ? (
-                                        <Link
-                                            href={link.url}
-                                            className={cn(
-                                                'inline-flex items-center justify-center min-w-[44px] h-11 px-3 rounded-xl text-[12px] font-black uppercase tracking-tight transition-all duration-300 shadow-sm active:scale-90',
-                                                link.active
-                                                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100 border border-indigo-500'
-                                                    : 'bg-white border border-slate-100 text-slate-600 hover:border-indigo-200 hover:text-indigo-600 hover:shadow-md'
-                                            )}
-                                        >
-                                            {label || (isPrev ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />)}
-                                        </Link>
-                                    ) : (
-                                        <span className="inline-flex items-center justify-center min-w-[44px] h-11 rounded-xl text-[12px] font-black text-slate-300 border border-transparent whitespace-nowrap opacity-50">
-                                            {label || (isPrev ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />)}
-                                        </span>
-                                    )}
-                                </span>
-                            );
-                        })}
+                <div className="flex items-center gap-4">
+                    <span>
+                        Showing {pagination ? (pagination.from ?? 0) : 0} to {pagination ? (pagination.to ?? 0) : 0} of {pagination ? pagination.total : 0} entries
+                    </span>
+                    <div className="flex items-center gap-1">
+                        <button className="px-3 py-1.5 border border-slate-300 rounded text-slate-600 hover:bg-slate-50 disabled:opacity-50">
+                            Previous
+                        </button>
+                        <button className="px-3 py-1.5 border border-slate-300 rounded text-slate-600 hover:bg-slate-50 disabled:opacity-50">
+                            Next
+                        </button>
                     </div>
                 </div>
-            )}
+            </div>
         </div>
     );
 }

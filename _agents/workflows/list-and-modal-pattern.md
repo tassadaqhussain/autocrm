@@ -1,0 +1,24 @@
+---
+description: Listing and Add/View/Edit must use DataTable and drawer modals; no full-page forms or action dropdowns.
+---
+
+# List & Modal (Drawer) Pattern
+
+For **all list/detail modules** (Clients, Leads, Deals, HR Employees, etc.) follow the same design:
+
+## Listing
+- Use the shared **DataTable** component (`@/Components/DataTable`). Do not build custom `<table>` markup.
+- Define columns as `DataTableColumn<T>[]`; pass `data`, `getRowId`, `emptyMessage`, `pagination` (if paginated), and `renderActions(row)` for View/Edit/Delete buttons.
+
+## Add / View / Edit
+- **Add (Create):** Always a **drawer modal**, never a full-page form. "Add [Entity]" in the toolbar opens the drawer. Form lives inside the drawer; footer: Save, Save & Add More (if applicable), Cancel.
+- **View:** Drawer with read-only fields; footer has Close and Edit (Edit opens the edit drawer).
+- **Edit:** Drawer with the same form as Create, pre-filled; submit sends PUT/PATCH, then close drawer.
+
+## Row actions
+- **No dropdown** for row actions. Use **always-visible icon buttons**: View (eye), Edit (pencil), Delete (trash) in the Action column.
+
+## Filtering
+- **No inline** search/status/Apply bar on the list. A single **Filter** button opens a **filter drawer** (search + filters + Apply/Clear/Cancel).
+
+Full checklist and references: `module-ui-patterns.md`. Reference implementation: Clients module (`Pages/Clients/Index.tsx`, `Components/Clients/*Drawer*.tsx`).

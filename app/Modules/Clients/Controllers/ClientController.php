@@ -27,7 +27,8 @@ class ClientController extends Controller
 
     public function __construct(
         protected ClientService $clientService
-    ) {}
+    ) {
+    }
 
     public function index(Request $request): Response
     {
@@ -80,7 +81,7 @@ class ClientController extends Controller
             status: $v['status'],
         );
         $this->clientService->create($dto);
-        return redirect()->route('clients.index')->with('success', 'Client created successfully.');
+        return back()->with('success', 'Client created successfully.');
     }
 
     public function show(Client $client): Response
@@ -124,7 +125,7 @@ class ClientController extends Controller
             status: $v['status'],
         );
         $this->clientService->update($client, $dto);
-        return redirect()->route('clients.index')->with('success', 'Client updated.');
+        return back()->with('success', 'Client updated.');
     }
 
     public function destroy(Client $client): RedirectResponse
