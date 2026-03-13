@@ -73,7 +73,7 @@ export default function CreateContractDrawer({ isOpen, onClose, clients, project
     const handleSubmit: FormEventHandler = (e) => {
         e.preventDefault();
         // Adjust standard submit for the mock/updated fields
-        post(route('contracts.store'), {
+        post(route('work.contracts.store'), {
             onSuccess: () => {
                 reset();
                 onClose();

@@ -36,7 +36,7 @@ export default function CreateContractTemplateDrawer({ isOpen, onClose, contract
 
     const handleSubmit: FormEventHandler = (e) => {
         e.preventDefault();
-        post(route('contracts.templates.store'), {
+        post(route('work.contracts.templates.store'), {
             onSuccess: () => {
                 onClose();
                 reset();

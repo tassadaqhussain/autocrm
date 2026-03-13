@@ -6,9 +6,11 @@ use App\Modules\Work\Controllers\TaskController;
 use App\Modules\Work\Controllers\TimesheetController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth', 'verified'])->prefix('work')->group(function () {
+Route::middleware(['auth', 'verified'])->prefix('work')->name('work.')->group(function () {
     // Projects
+    Route::get('projects/templates', [ProjectController::class, 'templates'])->name('projects.templates');
     Route::resource('projects', ProjectController::class);
+    Route::resource('project-categories', \App\Modules\Work\Controllers\ProjectCategoryController::class);
 
     // Contracts
     Route::get('contracts/templates', [ContractController::class, 'templates'])->name('contracts.templates');

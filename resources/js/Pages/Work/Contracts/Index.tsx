@@ -112,7 +112,7 @@ export default function Index({ contracts, clients, projects, contractTypes }: P
                         <button onClick={() => setCreateDrawerOpen(true)} className="h-10 px-4 bg-[#1d82f5] text-white rounded text-sm font-medium hover:bg-[#1669c1] transition-colors flex items-center gap-2 shadow-sm">
                             <Plus className="w-4 h-4 flex-shrink-0" /> Create Contract
                         </button>
-                        <Link href={route('contracts.templates')} className="h-10 px-4 bg-white border border-slate-300 text-slate-700 rounded text-sm font-medium hover:bg-slate-50 transition-colors flex items-center gap-2 shadow-sm">
+                        <Link href={route('work.contracts.templates')} className="h-10 px-4 bg-white border border-slate-300 text-slate-700 rounded text-sm font-medium hover:bg-slate-50 transition-colors flex items-center gap-2 shadow-sm">
                             <Layers className="w-4 h-4 flex-shrink-0" /> Contract Template
                         </Link>
                         <button className="h-10 px-4 bg-white border border-slate-300 text-slate-700 rounded text-sm font-medium hover:bg-slate-50 transition-colors flex items-center gap-2 shadow-sm">

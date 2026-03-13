@@ -193,7 +193,7 @@ export default function Authenticated({
             name: 'HR',
             href: route('hr.dashboard'),
             icon: Users,
-            active: route().current('hr.*') && !route().current('hr.clinic.*') && !route().current('hr.shifts.*') && !route().current('projects.*') && !route().current('contracts.*') && !route().current('tasks.*') && !route().current('timesheets.*'),
+            active: route().current('hr.*') && !route().current('hr.clinic.*') && !route().current('hr.shifts.*') && !route().current('work.projects.*') && !route().current('work.contracts.*') && !route().current('work.tasks.*') && !route().current('work.timesheets.*'),
             permission: 'manage_hr',
             children: [
                 { name: 'Dashboard', href: route('hr.dashboard'), icon: LayoutGrid, permission: 'manage_hr', active: route().current('hr.dashboard') },
@@ -254,15 +254,15 @@ export default function Authenticated({
                 <nav className="flex-1 flex flex-col gap-6">
                     {/* EMERGENCY WORK MODULE PIN */}
                     <Link
-                        href={route('hr.projects.index')}
+                        href={route('work.projects.index')}
                         className={cn(
                             "p-3 rounded-xl transition-all relative group",
-                            route().current('hr.projects.*') || route().current('hr.contracts.*') || route().current('hr.tasks.*') || route().current('hr.timesheets.*')
+                            route().current('work.projects.*') || route().current('work.contracts.*') || route().current('work.tasks.*') || route().current('work.timesheets.*')
                                 ? "text-indigo-600 bg-indigo-50/50"
                                 : "text-slate-300 hover:text-slate-600 hover:bg-slate-50"
                         )}
                     >
-                        <Briefcase className={cn("w-5 h-5 transition-transform duration-300 group-hover:scale-110", (route().current('hr.projects.*') || route().current('hr.contracts.*') || route().current('hr.tasks.*') || route().current('hr.timesheets.*')) && "stroke-[2.5]")} />
+                        <Briefcase className={cn("w-5 h-5 transition-transform duration-300 group-hover:scale-110", (route().current('work.projects.*') || route().current('work.contracts.*') || route().current('work.tasks.*') || route().current('work.timesheets.*')) && "stroke-[2.5]")} />
                         <div className="absolute left-[calc(100%+12px)] px-3 py-1.5 bg-slate-900 text-white text-[9px] font-black uppercase tracking-widest rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-all translate-x-[-10px] group-hover:translate-x-0 whitespace-nowrap z-[100] shadow-xl">
                             Work
                         </div>
@@ -304,7 +304,7 @@ export default function Authenticated({
             </aside>
 
             {/* Secondary Sidebar (Module Sub-menu) */}
-            {(route().current('projects.*') || route().current('contracts.*') || route().current('tasks.*') || route().current('timesheets.*')) && (
+            {(route().current('work.projects.*') || route().current('work.contracts.*') || route().current('work.tasks.*') || route().current('work.timesheets.*')) && (
                 <aside className="hidden lg:flex fixed inset-y-0 left-20 w-64 flex-col py-8 z-50 bg-[#F8FAFC] border-r border-slate-100/60 shadow-[4px_0_24px_-10px_rgba(0,0,0,0.02)] animate-in slide-in-from-left-4 duration-500">
                     <div className="px-8 mb-10">
                         <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Module</h3>
@@ -313,10 +313,10 @@ export default function Authenticated({
 
                     <div className="px-4 space-y-1.5">
                         <Link
-                            href={route('hr.contracts.index')}
+                            href={route('work.contracts.index')}
                             className={cn(
                                 "flex items-center gap-4 px-4 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all",
-                                route().current('hr.contracts.*')
+                                route().current('work.contracts.*')
                                     ? "bg-white text-indigo-600 shadow-sm border border-slate-100/50"
                                     : "text-slate-400 hover:text-slate-700 hover:bg-slate-50/80"
                             )}
@@ -324,10 +324,10 @@ export default function Authenticated({
                             <FileText className="w-4 h-4" /> Contracts
                         </Link>
                         <Link
-                            href={route('hr.projects.index')}
+                            href={route('work.projects.index')}
                             className={cn(
                                 "flex items-center gap-4 px-4 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all",
-                                route().current('hr.projects.*')
+                                route().current('work.projects.*')
                                     ? "bg-white text-indigo-600 shadow-sm border border-slate-100/50"
                                     : "text-slate-400 hover:text-slate-700 hover:bg-slate-50/80"
                             )}
@@ -335,10 +335,10 @@ export default function Authenticated({
                             <Folder className="w-4 h-4" /> Projects
                         </Link>
                         <Link
-                            href={route('hr.tasks.index')}
+                            href={route('work.tasks.index')}
                             className={cn(
                                 "flex items-center gap-4 px-4 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all",
-                                route().current('hr.tasks.*')
+                                route().current('work.tasks.*')
                                     ? "bg-white text-indigo-600 shadow-sm border border-slate-100/50"
                                     : "text-slate-400 hover:text-slate-700 hover:bg-slate-50/80"
                             )}
@@ -346,10 +346,10 @@ export default function Authenticated({
                             <Command className="w-4 h-4" /> Tasks
                         </Link>
                         <Link
-                            href={route('hr.timesheets.index')}
+                            href={route('work.timesheets.index')}
                             className={cn(
                                 "flex items-center gap-4 px-4 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all",
-                                route().current('hr.timesheets.*')
+                                route().current('work.timesheets.*')
                                     ? "bg-white text-indigo-600 shadow-sm border border-slate-100/50"
                                     : "text-slate-400 hover:text-slate-700 hover:bg-slate-50/80"
                             )}
@@ -489,7 +489,7 @@ export default function Authenticated({
             {/* Main Wrapper */}
             <div className={cn(
                 "flex-1 lg:ml-20 flex flex-col min-w-0 min-h-screen transition-all duration-500",
-                ((navigation.find(n => n.active && n.children)) || (route().current('projects.*') || route().current('contracts.*') || route().current('tasks.*') || route().current('timesheets.*'))) && "lg:ml-[21rem]"
+                ((navigation.find(n => n.active && n.children)) || (route().current('work.projects.*') || route().current('work.contracts.*') || route().current('work.tasks.*') || route().current('work.timesheets.*'))) && "lg:ml-[21rem]"
             )}>
                 {/* Global Topbar */}
                 <header className="h-16 shrink-0 flex items-center justify-between px-10 relative z-40 bg-[#F8FAFC]/80 backdrop-blur-xl border-b border-slate-100/50">

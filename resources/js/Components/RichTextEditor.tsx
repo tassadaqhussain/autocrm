@@ -61,8 +61,8 @@ export default function RichTextEditor({
 }: RichTextEditorProps) {
     const editor = useEditor({
         extensions: [
-            StarterKit,
-            Underline,
+            StarterKit.configure(),
+            Underline.configure(),
         ],
         content: value,
         immediatelyRender: false,

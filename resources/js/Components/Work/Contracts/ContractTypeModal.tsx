@@ -23,7 +23,7 @@ export default function ContractTypeModal({ isOpen, onClose, contractTypes }: Pr
     const handleSave = () => {
         if (!data.name.trim()) return;
 
-        post(route('contract-types.store'), {
+        post(route('work.contract-types.store'), {
             onSuccess: () => {
                 reset();
                 onClose();
